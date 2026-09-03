@@ -21,7 +21,7 @@ Prompt -
       color: #dceaf1;
       font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
-    main { width: min(1100px, 100%); margin: 0 auto; }
+    main { width: 100%; margin: 0; }
     h1 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 500; }
     .intro { margin: 0 0 18px; color: #9bb0bd; }
     .prompt {
@@ -32,17 +32,17 @@ Prompt -
       background: #0c141c;
     }
     .prompt strong { color: #6fe3ff; font-weight: 500; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #1d2b35; vertical-align: top; }
-    th { padding: 0; color: #9bb0bd; font-size: .75rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: max-content; min-width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    th, td { padding: 8px 9px; border-bottom: 1px solid #1d2b35; vertical-align: middle; }
+    th { padding: 0; color: #9bb0bd; font-size: .68rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
     .sort-button {
       display: flex;
       width: 100%;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 6px;
+      padding: 8px 9px;
       border: 0;
       color: inherit;
       background: transparent;
@@ -50,13 +50,16 @@ Prompt -
       letter-spacing: inherit;
       text-align: left;
       text-transform: inherit;
+      white-space: nowrap;
       cursor: pointer;
     }
     .sort-button:hover, .sort-button:focus-visible { color: #fff; outline: none; }
     .sort-indicator { color: #607783; font-size: .9rem; }
     td.model { color: #f4c477; white-space: nowrap; }
     td.harness { color: #6fe3ff; white-space: nowrap; }
-    td.file { color: #607783; font-size: .8rem; overflow-wrap: anywhere; }
+    td.file { color: #607783; font-size: .8rem; }
+    td.metric { text-align: right; white-space: nowrap; }
+    td.status { white-space: nowrap; }
     a { color: inherit; text-decoration: none; }
     a:hover, a:focus-visible { color: #fff; text-decoration: underline; outline: none; }
     .open { color: #f4c477; white-space: nowrap; }
@@ -64,9 +67,8 @@ Prompt -
     code { color: inherit; }
     @media (max-width: 700px) {
       body { padding: 22px 12px 38px; }
-      th, td { padding: 9px 8px; }
-      .sort-button { padding: 9px 8px; }
-      td.model, td.harness { white-space: normal; }
+      th, td { padding: 7px 7px; }
+      .sort-button { padding: 7px 7px; }
     }
   </style>
 </head>
@@ -83,23 +85,49 @@ Prompt -
             <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="0">Model <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
             <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="1">Harness <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
             <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="2">File <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="3">Duration <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="4">TTFT <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="5">Input tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="6">Output tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="7">Reasoning tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="8">Total tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="9">Cached input % <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="10">Tool calls <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="11">Tool errors <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="12">Opened in browser <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="13">Checked screenshots <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-glm53flash-max/sci-fi-hangar.html"><code>hangar-codex-glm53flash-max/sci-fi-hangar.html</code></a></td></tr>
-          <tr><td class="model">Luna 5.6 Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-luna56-max/codex-luna-max.html"><code>hangar-codex-luna56-max/codex-luna-max.html</code></a></td></tr>
-          <tr><td class="model">SOL 5.6 Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-sol56-max/codex-sol-max.html"><code>hangar-codex-sol56-max/codex-sol-max.html</code></a></td></tr>
-          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OMP</td><td class="file"><a href="hangar-omp-glm53-flash/omp-glm57-flash-max.html"><code>hangar-omp-glm53-flash/omp-glm57-flash-max.html</code></a></td></tr>
-          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OMP</td><td class="file"><a href="hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html"><code>hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html</code></a></td></tr>
-          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OpenCode</td><td class="file"><a href="hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html"><code>hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html</code></a></td></tr>
-          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OpenCode</td><td class="file"><a href="hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html"><code>hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html</code></a></td></tr>
-          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH / PTC</td><td class="file"><a href="hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html"><code>hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html</code></a></td></tr>
-          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH</td><td class="file"><a href="hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html"><code>hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html</code></a></td></tr>
+          <tr>
+            <td class="model">GLM 5.3 Flash Max</td>
+            <td class="harness">Codex</td>
+            <td class="file"><a class="open" href="hangar-codex-glm53flash-max/sci-fi-hangar.html">Open</a></td>
+            <td class="metric" data-sort="540.232">9m 0.232s</td>
+            <td class="metric" data-sort="9.344">9.344s</td>
+            <td class="metric" data-sort="457685">457,685</td>
+            <td class="metric" data-sort="17458">17,458</td>
+            <td class="metric" data-sort="7694">7,694</td>
+            <td class="metric" data-sort="475143">475,143</td>
+            <td class="metric" data-sort="85.26">85.26%</td>
+            <td class="metric" data-sort="14">14</td>
+            <td class="metric" data-sort="1">1</td>
+            <td class="status">Blocked</td>
+            <td class="status">No</td>
+          </tr>
+          <tr><td class="model">Luna 5.6 Max</td><td class="harness">Codex</td><td class="file"><a class="open" href="hangar-codex-luna56-max/codex-luna-max.html">Open</a></td><td class="metric" data-sort="553.098">9m 13.098s</td><td class="metric" data-sort="6.199">6.199s</td><td class="metric" data-sort="1146755">1,146,755</td><td class="metric" data-sort="25512">25,512</td><td class="metric" data-sort="6879">6,879</td><td class="metric" data-sort="1172267">1,172,267</td><td class="metric" data-sort="92.76">92.76%</td><td class="metric" data-sort="32">32</td><td class="metric" data-sort="2">2</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">SOL 5.6 Max</td><td class="harness">Codex</td><td class="file"><a class="open" href="hangar-codex-sol56-max/codex-sol-max.html">Open</a></td><td class="metric" data-sort="648.765">10m 48.765s</td><td class="metric" data-sort="8.460">8.460s</td><td class="metric" data-sort="1069163">1,069,163</td><td class="metric" data-sort="28278">28,278</td><td class="metric" data-sort="7515">7,515</td><td class="metric" data-sort="1097441">1,097,441</td><td class="metric" data-sort="94.60">94.60%</td><td class="metric" data-sort="21">21</td><td class="metric" data-sort="5">5</td><td class="status">No</td><td class="status">No</td></tr>
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OMP</td><td class="file"><a class="open" href="hangar-omp-glm53-flash/omp-glm57-flash-max.html">Open</a></td><td class="metric" data-sort="1814979">30m 14.979s</td><td class="metric" data-sort="6.596">6.596s</td><td class="metric" data-sort="1678509">1,678,509</td><td class="metric" data-sort="63405">63,405</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="1741914">1,741,914</td><td class="metric" data-sort="78.54">78.54%</td><td class="metric" data-sort="57">57</td><td class="metric" data-sort="0">0</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OMP</td><td class="file"><a class="open" href="hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html">Open</a></td><td class="metric" data-sort="2485836">41m 25.836s</td><td class="metric" data-sort="15.275">15.275s</td><td class="metric" data-sort="3407451">3,407,451</td><td class="metric" data-sort="71935">71,935</td><td class="metric" data-sort="49131">49,131</td><td class="metric" data-sort="3479386">3,479,386</td><td class="metric" data-sort="86.92">86.92%</td><td class="metric" data-sort="89">89</td><td class="metric" data-sort="0">0</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OpenCode</td><td class="file"><a class="open" href="hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html">Open</a></td><td class="metric" data-sort="1228948">20m 28.948s</td><td class="metric" data-sort="6.284">6.284s</td><td class="metric" data-sort="4305447">4,305,447</td><td class="metric" data-sort="50468">50,468</td><td class="metric" data-sort="33414">33,414</td><td class="metric" data-sort="4355915">4,355,915</td><td class="metric" data-sort="96.89">96.89%</td><td class="metric" data-sort="67">67</td><td class="metric" data-sort="0">0</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OpenCode</td><td class="file"><a class="open" href="hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html">Open</a></td><td class="metric" data-sort="528470">8m 48.470s</td><td class="metric" data-sort="10.182">10.182s</td><td class="metric" data-sort="665490">665,490</td><td class="metric" data-sort="41817">41,817</td><td class="metric" data-sort="28788">28,788</td><td class="metric" data-sort="707307">707,307</td><td class="metric" data-sort="95.64">95.64%</td><td class="metric" data-sort="13">13</td><td class="metric" data-sort="0">0</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH / PTC</td><td class="file"><a class="open" href="hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html">Open</a></td><td class="metric" data-sort="1472929">24m 32.929s</td><td class="metric" data-sort="7.724">7.724s</td><td class="metric" data-sort="1012499">1,012,499</td><td class="metric" data-sort="89894">89,894</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="1102393">1,102,393</td><td class="metric" data-sort="91.69">91.69%</td><td class="metric" data-sort="23">23</td><td class="metric" data-sort="5">5</td><td class="status">Yes</td><td class="status">Yes</td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH</td><td class="file"><a class="open" href="hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html">Open</a></td><td class="metric" data-sort="1095239">18m 15.239s</td><td class="metric" data-sort="6.755">6.755s</td><td class="metric" data-sort="2654457">2,654,457</td><td class="metric" data-sort="78232">78,232</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="2732689">2,732,689</td><td class="metric" data-sort="95.48">95.48%</td><td class="metric" data-sort="42">42</td><td class="metric" data-sort="2">2</td><td class="status">No</td><td class="status">No</td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="note">All GLM runs are labelled <code>GLM 5.3 Flash Max</code>; some historical filenames still contain <code>glm57</code>.</p>
+    <p class="note">All GLM runs are labelled <code>GLM 5.3 Flash Max</code>; input tokens include cached input. Output tokens are the generated total, including reasoning; when a harness reports reasoning separately, the reasoning column shows that subset. The DSH adapter does not report a separate reasoning count. DSH durations sum active turn time across both turns, excluding the pause between turns. Tool errors are recorded failed tool events. A dash means unavailable or not reported.</p>
   </main>
   <script>
     const table = document.querySelector('table');
@@ -114,7 +142,18 @@ Prompt -
       else { activeColumn = column; direction = 1; }
 
       [...body.rows]
-        .sort((a, b) => collator.compare(a.cells[column].textContent.trim(), b.cells[column].textContent.trim()) * direction)
+        .sort((a, b) => {
+          const leftCell = a.cells[column];
+          const rightCell = b.cells[column];
+          const leftRaw = leftCell.dataset.sort;
+          const rightRaw = rightCell.dataset.sort;
+          const leftKnown = leftRaw !== undefined && leftRaw !== '';
+          const rightKnown = rightRaw !== undefined && rightRaw !== '';
+
+          if (leftKnown !== rightKnown) return (leftKnown ? -1 : 1) * direction;
+          if (leftKnown && rightKnown) return (Number(leftRaw) - Number(rightRaw)) * direction;
+          return collator.compare(leftCell.textContent.trim(), rightCell.textContent.trim()) * direction;
+        })
         .forEach(row => body.appendChild(row));
 
       headers.forEach((item, index) => {
