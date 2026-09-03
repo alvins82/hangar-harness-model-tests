@@ -1,4 +1,11 @@
 <!doctype html>
+<!--
+Benchmark context:
+I've been testing a simple prompt with different model and harness combinations to work out which one produces best results. I do this in '/goal' mode.
+
+Prompt -
+"Build a single-page Three.js sci-fi hangar with hovering drones, animated warning lights, emissive runway strips, and subtle volumetric-style fog planes. Include drone formation toggle and cinematic camera path. Output one self-contained HTML file with inline JavaScript."
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -72,6 +79,28 @@
       color: var(--muted);
       font-size: 0.88rem;
       line-height: 1.7;
+    }
+
+    .prompt-box {
+      max-width: 84ch;
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-left: 2px solid var(--cyan);
+      background: rgba(4, 12, 20, 0.68);
+    }
+
+    .prompt-label {
+      color: var(--cyan);
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .prompt-box p {
+      margin: 9px 0 0;
+      color: #d6e7ef;
+      font-size: 0.82rem;
+      line-height: 1.65;
     }
 
     .meta {
@@ -173,7 +202,12 @@
     <header>
       <p class="eyebrow">Sector 07 // Comparative Render Lab</p>
       <h1>Hangar Harness / Model Tests</h1>
-      <p class="intro">Interactive Three.js outputs grouped by the harness used to generate them. Select a run to open its standalone HTML scene.</p>
+      <p class="intro">I've been testing a simple prompt with different model and harness combinations to work out which one produces best results. I do this in '/goal' mode.</p>
+      <div class="prompt-box">
+        <span class="prompt-label">Prompt</span>
+        <p>Build a single-page Three.js sci-fi hangar with hovering drones, animated warning lights, emissive runway strips, and subtle volumetric-style fog planes. Include drone formation toggle and cinematic camera path. Output one self-contained HTML file with inline JavaScript.</p>
+      </div>
+      <p class="intro">Interactive outputs are grouped by the harness used to generate them. Select a run to open its standalone HTML scene.</p>
       <div class="meta"><span>09 scenes</span><span>static HTML</span><span>GitHub Pages ready</span></div>
     </header>
 
