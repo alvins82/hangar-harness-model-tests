@@ -35,11 +35,28 @@ Prompt -
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th, td { padding: 10px 12px; border-bottom: 1px solid #1d2b35; vertical-align: top; }
-    th { color: #9bb0bd; font-size: .75rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
-    td:first-child { color: #f4c477; white-space: nowrap; }
-    td:nth-child(2) { color: #6fe3ff; white-space: nowrap; }
-    td:nth-child(3) { color: #c8d9e2; white-space: nowrap; }
-    td:last-child { color: #607783; font-size: .8rem; overflow-wrap: anywhere; }
+    th { padding: 0; color: #9bb0bd; font-size: .75rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+    .sort-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      font: inherit;
+      letter-spacing: inherit;
+      text-align: left;
+      text-transform: inherit;
+      cursor: pointer;
+    }
+    .sort-button:hover, .sort-button:focus-visible { color: #fff; outline: none; }
+    .sort-indicator { color: #607783; font-size: .9rem; }
+    td.model { color: #f4c477; white-space: nowrap; }
+    td.harness { color: #6fe3ff; white-space: nowrap; }
+    td.file { color: #607783; font-size: .8rem; overflow-wrap: anywhere; }
     a { color: inherit; text-decoration: none; }
     a:hover, a:focus-visible { color: #fff; text-decoration: underline; outline: none; }
     .open { color: #f4c477; white-space: nowrap; }
@@ -48,7 +65,8 @@ Prompt -
     @media (max-width: 700px) {
       body { padding: 22px 12px 38px; }
       th, td { padding: 9px 8px; }
-      td:first-child, td:nth-child(2), td:nth-child(3) { white-space: normal; }
+      .sort-button { padding: 9px 8px; }
+      td.model, td.harness { white-space: normal; }
     }
   </style>
 </head>
@@ -61,23 +79,53 @@ Prompt -
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Model</th><th>Harness</th><th>Scene</th><th>File</th><th></th></tr>
+          <tr>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="0">Model <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="1">Harness <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="2">File <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+          </tr>
         </thead>
         <tbody>
-          <tr><td>GLM 5.3 Flash Max</td><td>Codex</td><td>Sci-Fi Hangar</td><td><code>hangar-codex-glm53flash-max/sci-fi-hangar.html</code></td><td><a class="open" href="hangar-codex-glm53flash-max/sci-fi-hangar.html">Open ↗</a></td></tr>
-          <tr><td>Luna 5.6 Max</td><td>Codex</td><td>Codex Luna</td><td><code>hangar-codex-luna56-max/codex-luna-max.html</code></td><td><a class="open" href="hangar-codex-luna56-max/codex-luna-max.html">Open ↗</a></td></tr>
-          <tr><td>SOL 5.6 Max</td><td>Codex</td><td>Codex SOL</td><td><code>hangar-codex-sol56-max/codex-sol-max.html</code></td><td><a class="open" href="hangar-codex-sol56-max/codex-sol-max.html">Open ↗</a></td></tr>
-          <tr><td>GLM Flash Max</td><td>OMP</td><td>Orbital Refit Hangar</td><td><code>hangar-omp-glm53-flash/omp-glm57-flash-max.html</code></td><td><a class="open" href="hangar-omp-glm53-flash/omp-glm57-flash-max.html">Open ↗</a></td></tr>
-          <tr><td>Qwen 3.8 27B x-high</td><td>OMP</td><td>Sci-Fi Hangar</td><td><code>hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html</code></td><td><a class="open" href="hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html">Open ↗</a></td></tr>
-          <tr><td>GLM 5.7 Flash Max</td><td>OpenCode</td><td>Orbital Dock</td><td><code>hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html</code></td><td><a class="open" href="hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html">Open ↗</a></td></tr>
-          <tr><td>Qwen 3.8 27B x-high</td><td>OpenCode</td><td>OpenCode Hangar</td><td><code>hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html</code></td><td><a class="open" href="hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html">Open ↗</a></td></tr>
-          <tr><td>Qwen 3.8 27B x-high</td><td>DSH / PTC</td><td>Hangar 20</td><td><code>hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html</code></td><td><a class="open" href="hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html">Open ↗</a></td></tr>
-          <tr><td>Qwen 3.8 27B x-high</td><td>DSH</td><td>DeepSeek Harness</td><td><code>hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html</code></td><td><a class="open" href="hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html">Open ↗</a></td></tr>
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-glm53flash-max/sci-fi-hangar.html"><code>hangar-codex-glm53flash-max/sci-fi-hangar.html</code></a></td></tr>
+          <tr><td class="model">Luna 5.6 Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-luna56-max/codex-luna-max.html"><code>hangar-codex-luna56-max/codex-luna-max.html</code></a></td></tr>
+          <tr><td class="model">SOL 5.6 Max</td><td class="harness">Codex</td><td class="file"><a href="hangar-codex-sol56-max/codex-sol-max.html"><code>hangar-codex-sol56-max/codex-sol-max.html</code></a></td></tr>
+          <tr><td class="model">GLM Flash Max</td><td class="harness">OMP</td><td class="file"><a href="hangar-omp-glm53-flash/omp-glm57-flash-max.html"><code>hangar-omp-glm53-flash/omp-glm57-flash-max.html</code></a></td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OMP</td><td class="file"><a href="hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html"><code>hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html</code></a></td></tr>
+          <tr><td class="model">GLM 5.7 Flash Max</td><td class="harness">OpenCode</td><td class="file"><a href="hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html"><code>hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html</code></a></td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OpenCode</td><td class="file"><a href="hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html"><code>hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html</code></a></td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH / PTC</td><td class="file"><a href="hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html"><code>hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html</code></a></td></tr>
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH</td><td class="file"><a href="hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html"><code>hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html</code></a></td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="note">Note: the OMP GLM directory is labelled <code>glm53</code>, while its HTML filename is labelled <code>glm57</code>.</p>
   </main>
+  <script>
+    const table = document.querySelector('table');
+    const body = table.tBodies[0];
+    const headers = [...table.querySelectorAll('th')];
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    let activeColumn = -1;
+    let direction = 1;
+
+    function sortTable(column, header) {
+      if (activeColumn === column) direction *= -1;
+      else { activeColumn = column; direction = 1; }
+
+      [...body.rows]
+        .sort((a, b) => collator.compare(a.cells[column].textContent.trim(), b.cells[column].textContent.trim()) * direction)
+        .forEach(row => body.appendChild(row));
+
+      headers.forEach((item, index) => {
+        item.setAttribute('aria-sort', index === column ? (direction === 1 ? 'ascending' : 'descending') : 'none');
+        item.querySelector('.sort-indicator').textContent = index === column ? (direction === 1 ? '↑' : '↓') : '↕';
+      });
+    }
+
+    headers.forEach(header => {
+      header.querySelector('.sort-button').addEventListener('click', () => sortTable(Number(header.querySelector('.sort-button').dataset.column), header));
+    });
+  </script>
 </body>
 </html>
