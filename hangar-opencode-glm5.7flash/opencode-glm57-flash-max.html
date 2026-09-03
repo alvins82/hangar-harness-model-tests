@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HANGAR 07 // ORBITAL DOCK</title>
+<style>
+  :root{ --cyan:#4de3ff; --amber:#ffb84d; --red:#ff4a3d; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden;
+    font-family:"SF Mono",Consolas,"Cascadia Mono",Menlo,monospace; color:#cfe9f5; }
+  #scene{ position:fixed; inset:0; }
+  canvas{ display:block; touch-action:none; }
+
+  #ui{ position:fixed; inset:0; pointer-events:none; z-index:5; }
+  .vignette{ position:absolute; inset:0;
+    background:radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,10,.55) 100%); }
+  .scanlines{ position:absolute; inset:0; opacity:.5;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
+
+  .panel{ position:absolute; background:rgba(6,12,20,.62);
+    border:1px solid rgba(77,227,255,.28); padding:10px 14px; backdrop-filter:blur(6px); }
+  .panel::before,.panel::after{ content:""; position:absolute; width:10px; height:10px;
+    border:1px solid var(--cyan); }
+  .panel::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .panel::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  #hud-tl{ top:18px; left:18px; }
+  #hud-tl h1{ margin:0; font-size:13px; letter-spacing:4px; color:var(--cyan); font-weight:600; }
+  #hud-tl .sub{ font-size:9px; letter-spacing:2px; color:#7fa6bd; margin-top:5px; }
+
+  #hud-tr{ top:18px; right:18px; text-align:right; font-size:10px; letter-spacing:2px;
+    line-height:1.9; color:#9fc3d8; }
+  #hud-tr b{ color:var(--cyan); font-weight:600; }
+  .rec{ color:var(--red); }
+  .rec::before{ content:"\25CF"; margin-right:6px; animation:blink 1.2s steps(2) infinite; }
+  @keyframes blink{ 50%{ opacity:.15; } }
+
+  #hint{ position:absolute; left:50%; bottom:66px; transform:translateX(-50%);
+    font-size:9px; letter-spacing:2px; color:#6d93a9; white-space:nowrap; }
+
+  #hud-bottom{ position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
+    display:flex; gap:10px; pointer-events:auto; }
+  button{ font:inherit; font-size:10px; letter-spacing:3px; color:#bfe8f7;
+    background:rgba(6,12,20,.72); border:1px solid rgba(77,227,255,.35);
+    padding:10px 18px; cursor:pointer; transition:.15s; backdrop-filter:blur(6px); }
+  button:hover{ border-color:var(--cyan); color:#fff; background:rgba(20,40,60,.8);
+    box-shadow:0 0 18px rgba(77,227,255,.25); }
+
+  #boot{ position:fixed; inset:0; z-index:10; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; background:#02050a; transition:opacity .7s; }
+  #boot .lbl{ letter-spacing:6px; font-size:12px; color:var(--cyan); }
+  #boot .bar{ width:220px; height:2px; background:rgba(77,227,255,.15);
+    margin-top:16px; overflow:hidden; }
+  #boot .bar i{ display:block; height:100%; width:40%; background:var(--cyan);
+    animation:load 1s linear infinite; }
+  @keyframes load{ from{ transform:translateX(-110%);} to{ transform:translateX(280%);} }
+  #boot .err{ color:var(--red); font-size:11px; letter-spacing:1px; max-width:70ch;
+    text-align:center; line-height:1.8; padding:0 20px; }
+  #boot.done{ opacity:0; pointer-events:none; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="scene"></div>
+<div id="ui">
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="panel" id="hud-tl">
+    <h1>HANGAR 07 // ORBITAL DOCK</h1>
+    <div class="sub">DRONE BAY — AUTONOMOUS OPS</div>
+  </div>
+  <div class="panel" id="hud-tr">
+    <div class="rec">LIVE FEED</div>
+    <div>FORMATION <b id="stFormation">DELTA</b></div>
+    <div>CAMERA <b id="stCamera">CINEMATIC</b></div>
+    <div>UNITS <b>7</b></div>
+    <div>FPS <b id="stFps">--</b></div>
+  </div>
+  <div id="hint">[F] FORMATION &nbsp;&middot;&nbsp; [C] CAMERA MODE &nbsp;&middot;&nbsp; DRAG TO ORBIT IN FREE CAM</div>
+  <div id="hud-bottom">
+    <button id="btnFormation">FORMATION: DELTA</button>
+    <button id="btnCamera">CAMERA: CINEMATIC</button>
+  </div>
+</div>
+<div id="boot">
+  <div class="lbl">INITIALIZING FLIGHT SYSTEMS</div>
+  <div class="bar"><i></i></div>
+</div>
+
+<script type="module">
+const bootEl = document.getElementById('boot');
+
+let THREE, OrbitControls, EffectComposer, RenderPass, UnrealBloomPass, OutputPass, RoomEnvironment;
+try {
+  THREE = await import('three');
+  ({ OrbitControls }   = await import('three/addons/controls/OrbitControls.js'));
+  ({ EffectComposer }  = await import('three/addons/postprocessing/EffectComposer.js'));
+  ({ RenderPass }      = await import('three/addons/postprocessing/RenderPass.js'));
+  ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
+  ({ OutputPass }      = await import('three/addons/postprocessing/OutputPass.js'));
+  ({ RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js'));
+} catch (err) {
+  bootEl.innerHTML = '<div class="err">FAILED TO LOAD THREE.JS FROM CDN<br>Check network connection and reload.<br><br>' + err + '</div>';
+  throw err;
+}
+
+/* ============================================================ core */
+const W = 60, D = 90, H = 22;               // hangar interior: width(x) depth(z) height(y)
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+} catch (err) {
+  bootEl.innerHTML = '<div class="err">WEBGL NOT AVAILABLE ON THIS DEVICE</div>';
+  throw err;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.getElementById('scene').appendChild(renderer.domElement);
+const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05070c);
+scene.fog = new THREE.FogExp2(0x070b12, 0.011);
+
+const camera = new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.1, 300);
+camera.position.set(0, 4.2, 40);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.22;
+pmrem.dispose();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.maxPolarAngle = 1.52;
+controls.minDistance = 3;
+controls.maxDistance = 70;
+controls.target.set(0, 5, -8);
+controls.enabled = false;                    // start in cinematic mode
+
+const composer = new EffectComposer(renderer);
+composer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.72, 0.55, 0.55);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* ============================================================ canvas textures */
+function canvasTex(w, h, draw, opts = {}) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = maxAniso;
+  if (opts.repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(opts.repeat[0], opts.repeat[1]); }
+  return t;
+}
+
+const floorTex = canvasTex(512, 512, (g) => {
+  g.fillStyle = '#161a22'; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(255,255,255,${Math.random()*0.022})`; g.fillRect(Math.random()*512, Math.random()*512, 2, 2); }
+  for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(0,0,0,${Math.random()*0.05})`; g.fillRect(Math.random()*512, Math.random()*512, 1+Math.random()*3, 1+Math.random()*3); }
+  for (let px = 0; px < 4; px++) for (let py = 0; py < 4; py++)
+    if (Math.random() < 0.35) { g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.022)' : 'rgba(0,0,0,0.05)'; g.fillRect(px*128+2, py*128+2, 124, 124); }
+  g.strokeStyle = 'rgba(130,160,190,0.16)'; g.lineWidth = 2;
+  for (let i = 0; i <= 512; i += 128) { g.beginPath(); g.moveTo(i,0); g.lineTo(i,512); g.moveTo(0,i); g.lineTo(512,i); g.stroke(); }
+  g.strokeStyle = 'rgba(130,160,190,0.06)'; g.lineWidth = 1;
+  for (let i = 0; i <= 512; i += 64) { g.beginPath(); g.moveTo(i,0); g.lineTo(i,512); g.moveTo(0,i); g.lineTo(512,i); g.stroke(); }
+  g.fillStyle = 'rgba(150,180,210,0.20)';
+  for (let x = 0; x <= 512; x += 128) for (let y = 0; y <= 512; y += 128) { g.beginPath(); g.arc(x+6, y+6, 2.2, 0, 7); g.fill(); }
+}, { repeat:[8, 12] });
+
+const runwayTex = canvasTex(256, 512, (g) => {
+  g.fillStyle = '#0a0d12'; g.fillRect(0, 0, 256, 512);
+  for (let i = 0; i < 700; i++) { g.fillStyle = `rgba(255,255,255,${Math.random()*0.03})`; g.fillRect(Math.random()*256, Math.random()*512, 1.5, 1.5); }
+  for (let i = 0; i < 14; i++) { g.fillStyle = 'rgba(0,0,0,0.18)'; g.fillRect(55+Math.random()*150, Math.random()*512, 3+Math.random()*6, 20+Math.random()*60); }
+  g.fillStyle = 'rgba(190,210,225,0.5)'; g.fillRect(18, 0, 5, 512); g.fillRect(233, 0, 5, 512);
+  g.fillStyle = 'rgba(140,220,255,0.32)'; g.fillRect(124, 180, 8, 150);
+}, { repeat:[1, 6] });
+
+const hazardTex = canvasTex(128, 128, (g) => {
+  g.fillStyle = '#d9a832'; g.fillRect(0, 0, 128, 128);
+  g.fillStyle = '#15130e';
+  for (let i = -128; i < 256; i += 32) {
+    g.beginPath(); g.moveTo(i, 0); g.lineTo(i+16, 0); g.lineTo(i+16-128, 128); g.lineTo(i-128, 128); g.closePath(); g.fill();
+  }
+}, { repeat:[10, 1] });
+
+const fogTex = canvasTex(256, 256, (g) => {
+  const r = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  r.addColorStop(0, 'rgba(255,255,255,0.85)'); r.addColorStop(0.4, 'rgba(255,255,255,0.35)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 256, 256);
+});
+
+const shadowTex = canvasTex(128, 128, (g) => {
+  const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, 'rgba(0,0,0,0.9)'); r.addColorStop(0.6, 'rgba(0,0,0,0.45)'); r.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+});
+
+const beamTex = canvasTex(64, 256, (g) => {
+  const r = g.createLinearGradient(0, 0, 0, 256);
+  r.addColorStop(0, 'rgba(255,255,255,0.6)'); r.addColorStop(0.55, 'rgba(255,255,255,0.14)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 64, 256);
+});
+
+const dotTex = canvasTex(32, 32, (g) => {
+  const r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.35, 'rgba(255,255,255,0.5)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+});
+
+const starsTex = canvasTex(1024, 512, (g) => {
+  const r = g.createLinearGradient(0, 0, 0, 512);
+  r.addColorStop(0, '#04070f'); r.addColorStop(0.6, '#081020'); r.addColorStop(1, '#0d1a30');
+  g.fillStyle = r; g.fillRect(0, 0, 1024, 512);
+  const n = g.createRadialGradient(300, 180, 0, 300, 180, 260);
+  n.addColorStop(0, 'rgba(70,110,170,0.10)'); n.addColorStop(1, 'rgba(70,110,170,0)');
+  g.fillStyle = n; g.fillRect(0, 0, 1024, 512);
+  for (let i = 0; i < 300; i++) {
+    const a = 0.25 + Math.random()*0.75, s = 0.5 + Math.random()*1.4;
+    g.fillStyle = Math.random() < 0.12 ? `rgba(140,220,255,${a})` : (Math.random() < 0.08 ? `rgba(255,200,140,${a})` : `rgba(235,240,255,${a})`);
+    g.beginPath(); g.arc(Math.random()*1024, Math.random()*512, s, 0, 7); g.fill();
+  }
+});
+
+const numTex = canvasTex(256, 256, (g) => {
+  g.clearRect(0, 0, 256, 256);
+  g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = 6; g.strokeRect(14, 14, 228, 228);
+  g.fillStyle = 'rgba(255,255,255,0.9)';
+  g.font = 'bold 150px Consolas, Menlo, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('07', 128, 138);
+});
+
+/* ============================================================ materials */
+const wallMat   = new THREE.MeshStandardMaterial({ color:0x1c2230, roughness:0.82, metalness:0.3 });
+const darkMat   = new THREE.MeshStandardMaterial({ color:0x12161e, roughness:0.6,  metalness:0.55 });
+const trimMat   = new THREE.MeshStandardMaterial({ color:0x2a3342, roughness:0.55, metalness:0.6 });
+const floorMat  = new THREE.MeshStandardMaterial({ map:floorTex, roughness:0.72, metalness:0.28, envMapIntensity:0.5 });
+const runwayMat = new THREE.MeshStandardMaterial({ map:runwayTex, roughness:0.9, metalness:0.05 });
+
+const box = (w, h, d, mat) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+
+/* ============================================================ environment */
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W + 6, D + 8), floorMat);
+floor.rotation.x = -Math.PI/2; scene.add(floor);
+
+const runway = new THREE.Mesh(new THREE.PlaneGeometry(9.5, 78), runwayMat);
+runway.rotation.x = -Math.PI/2; runway.position.set(0, 0.015, 1); scene.add(runway);
+
+// painted "07" decals
+for (const z of [26, -24]) {
+  const decal = new THREE.Mesh(new THREE.PlaneGeometry(7, 7),
+    new THREE.MeshBasicMaterial({ map:numTex, transparent:true, opacity:0.5, color:0xbfd6e4, depthWrite:false }));
+  decal.rotation.x = -Math.PI/2; decal.rotation.z = 0;
+  decal.position.set(0, 0.045, z); decal.renderOrder = 1; scene.add(decal);
+}
+
+// emissive runway edge rails
+const railMat = new THREE.MeshStandardMaterial({ color:0x06131a, emissive:0x36dcff, emissiveIntensity:2.0, roughness:0.4 });
+for (const s of [-1, 1]) {
+  const rail = box(0.18, 0.08, 76, railMat);
+  rail.position.set(s*4.9, 0.05, 1); scene.add(rail);
+}
+
+// chasing center-line lights
+const dashes = [];
+for (let i = 0; i < 11; i++) {
+  const m = new THREE.MeshStandardMaterial({ color:0x0a141c, emissive:0x59e6ff, emissiveIntensity:0.5, roughness:0.5 });
+  const dseg = box(0.3, 0.04, 2.4, m);
+  dseg.position.set(0, 0.035, -32 + i*6.4); scene.add(dseg);
+  dashes.push({ z: -32 + i*6.4, mat: m });
+}
+
+// threshold chevrons pointing at the blast door
+const chevrons = [];
+for (let i = 0; i < 3; i++) {
+  const m = new THREE.MeshStandardMaterial({ color:0x1a1206, emissive:0xffb020, emissiveIntensity:1.2, roughness:0.5 });
+  const zTip = -33.5 - i*3.2;
+  for (const s of [-1, 1]) {
+    const arm = box(1.7, 0.04, 0.3, m);
+    arm.position.set(s*0.49, 0.045, zTip + 0.7);
+    arm.rotation.y = s*0.96;
+    scene.add(arm);
+  }
+  chevrons.push({ mat: m, phase: i*0.55 });
+}
+
+/* walls, pillars, strip lights */
+for (const s of [-1, 1]) {
+  const wall = box(0.6, H, D, wallMat); wall.position.set(s*(W/2 + 0.3), H/2, 0); scene.add(wall);
+  for (let z = -40; z <= 40; z += 10) {
+    const p = box(0.9, H, 0.9, darkMat); p.position.set(s*(W/2 - 0.5), H/2, z); scene.add(p);
+    const cap = box(1.1, 0.3, 1.1, trimMat); cap.position.set(s*(W/2 - 0.5), H - 0.4, z); scene.add(cap);
+  }
+}
+const amberStripMat = new THREE.MeshStandardMaterial({ color:0x140c02, emissive:0xffb050, emissiveIntensity:1.1, roughness:0.4 });
+const cyanStripMat  = new THREE.MeshStandardMaterial({ color:0x041018, emissive:0x36dcff, emissiveIntensity:0.8, roughness:0.4 });
+for (const s of [-1, 1]) {
+  const a = box(0.08, 0.14, D - 6, amberStripMat); a.position.set(s*(W/2 - 1.05), 7.5, 0); scene.add(a);
+  const c = box(0.08, 0.1,  D - 6, cyanStripMat);  c.position.set(s*(W/2 - 1.05), 17.5, 0); scene.add(c);
+}
+
+/* blast door (far end, z = -45) */
+const backWall = box(W + 2, H, 0.6, wallMat); backWall.position.set(0, H/2, -45.3); scene.add(backWall);
+const door = box(44, 18, 0.5, new THREE.MeshStandardMaterial({ color:0x161b24, roughness:0.5, metalness:0.7 }));
+door.position.set(0, 9, -44.9); scene.add(door);
+for (let y = 2.2; y <= 16; y += 3.4) {
+  const rib = box(43, 0.45, 0.35, darkMat); rib.position.set(0, y, -44.55); scene.add(rib);
+}
+const seamMat = new THREE.MeshStandardMaterial({ color:0x041018, emissive:0x36dcff, emissiveIntensity:1.4, roughness:0.4 });
+const centerSeam = box(0.14, 18, 0.12, seamMat); centerSeam.position.set(0, 9, -44.5); scene.add(centerSeam);
+for (let y = 3.9; y <= 15.5; y += 3.4) {
+  const s = box(43.6, 0.1, 0.1, seamMat); s.position.set(0, y, -44.5); scene.add(s);
+}
+const hazardBand = new THREE.Mesh(new THREE.PlaneGeometry(44, 1.6),
+  new THREE.MeshBasicMaterial({ map:hazardTex, color:0x9a8a60 }));
+hazardBand.position.set(0, 0.9, -44.5); scene.add(hazardBand);
+
+/* entrance gate (near end, z = +45) with starfield beyond */
+const gateW = 34, gateH = 16;
+for (const s of [-1, 1]) {
+  const seg = box((W - gateW)/2, H, 0.6, wallMat);
+  seg.position.set(s*(gateW/2 + (W - gateW)/4), H/2, 45.3); scene.add(seg);
+}
+const header = box(gateW, H - gateH, 0.6, wallMat); header.position.set(0, gateH + (H - gateH)/2, 45.3); scene.add(header);
+const gateGlowMat = new THREE.MeshStandardMaterial({ color:0x041018, emissive:0x59d8ff, emissiveIntensity:1.6, roughness:0.4 });
+for (const s of [-1, 1]) {
+  const jamb = box(0.16, gateH, 0.3, gateGlowMat); jamb.position.set(s*(gateW/2 + 0.15), gateH/2, 45.05); scene.add(jamb);
+}
+const lintel = box(gateW + 0.6, 0.16, 0.3, gateGlowMat); lintel.position.set(0, gateH + 0.1, 45.05); scene.add(lintel);
+
+const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(84, 30),
+  new THREE.MeshBasicMaterial({ map:starsTex, fog:false }));
+backdrop.position.set(0, 13, 49); backdrop.rotation.y = Math.PI; scene.add(backdrop);
+
+const gateSpill = new THREE.Mesh(new THREE.PlaneGeometry(gateW, gateH),
+  new THREE.MeshBasicMaterial({ map:fogTex, color:0x5f9fe0, transparent:true, opacity:0.10,
+    blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+gateSpill.position.set(0, 8, 44.6); scene.add(gateSpill);
+
+// gate sign
+const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 4.4),
+  new THREE.MeshBasicMaterial({ map:numTex, transparent:true, color:0xffb84d }));
+sign.position.set(0, 19.1, 44.9); sign.rotation.y = Math.PI; scene.add(sign);
+
+/* ceiling, trusses, light fixtures */
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, D + 2),
+  new THREE.MeshStandardMaterial({ color:0x10141b, roughness:0.9, metalness:0.2 }));
+ceiling.rotation.x = Math.PI/2; ceiling.position.y = H + 0.3; scene.add(ceiling);
+for (const x of [-20, -10, 0, 10, 20]) {
+  const beam = box(0.5, 0.8, D, darkMat); beam.position.set(x, H - 0.6, 0); scene.add(beam);
+}
+for (let z = -40; z <= 40; z += 10) {
+  const cross = box(W - 2, 0.5, 0.5, darkMat); cross.position.set(0, H - 1.2, z); scene.add(cross);
+}
+const fixtureMat = new THREE.MeshStandardMaterial({ color:0x30363f, emissive:0xdfeeff, emissiveIntensity:1.25, roughness:0.3 });
+const fixtures = [[-12, -10], [12, 16], [-12, 28], [12, -30]];
+for (const [fx, fz] of fixtures) {
+  const panel = box(5, 0.15, 1.4, fixtureMat); panel.position.set(fx, H - 1.7, fz); scene.add(panel);
+  for (const s of [-1, 1]) {
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.4, 6), darkMat);
+    rod.position.set(fx + s*2, H - 0.9, fz); scene.add(rod);
+  }
+}
+
+/* lights */
+scene.add(new THREE.HemisphereLight(0x35507a, 0x0a0c12, 0.5));
+const keyA = new THREE.PointLight(0xbfd9ff, 320, 60, 2); keyA.position.set(-12, 18.5, -10); scene.add(keyA);
+const keyB = new THREE.PointLight(0xbfd9ff, 280, 60, 2); keyB.position.set(12, 18.5, 16);  scene.add(keyB);
+const gateLight = new THREE.DirectionalLight(0x5f8fc0, 0.7);
+gateLight.position.set(0, 10, 30); gateLight.target.position.set(0, 3, -10);
+scene.add(gateLight, gateLight.target);
+
+/* rotating warning beacons flanking the blast door */
+const beacons = [];
+function buildBeacon(x, z, phase) {
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 3, 8), darkMat);
+  pole.position.set(x, 1.5, z); scene.add(pole);
+  const base = box(1.2, 0.5, 1.2, new THREE.MeshStandardMaterial({ map:hazardTex, roughness:0.7 }));
+  base.position.set(x, 0.25, z); scene.add(base);
+  const housing = box(0.55, 0.35, 0.55, trimMat); housing.position.set(x, 3.15, z); scene.add(housing);
+
+  const domeMat = new THREE.MeshStandardMaterial({ color:0x220503, emissive:0xff2a1e, emissiveIntensity:1, roughness:0.3 });
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), domeMat);
+  dome.position.set(x, 3.45, z); scene.add(dome);
+
+  const spinner = new THREE.Group(); spinner.position.set(x, 3.45, z); scene.add(spinner);
+  const glowMat = new THREE.MeshBasicMaterial({ map:fogTex, color:0xff3a26, transparent:true, opacity:0.3,
+    blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+  for (const ry of [0, Math.PI/2]) {
+    const blade = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), glowMat);
+    blade.rotation.y = ry; blade.position.y = 0.1; spinner.add(blade);
+  }
+  const light = new THREE.PointLight(0xff4433, 80, 34, 2);
+  light.position.set(x, 3.7, z); scene.add(light);
+  beacons.push({ spinner, domeMat, glowMat, light, phase });
+}
+buildBeacon(-16, -41, 0);
+buildBeacon(16, -41, Math.PI);
+
+/* wall-mounted warning strobes */
+const strobes = [];
+for (const s of [-1, 1]) for (let i = 0; i < 4; i++) {
+  const z = -30 + i*20;
+  const m = new THREE.MeshStandardMaterial({ color:0x1c0505, emissive:0xff2618, emissiveIntensity:0.15, roughness:0.4 });
+  const st = box(0.26, 0.44, 0.26, m);
+  st.position.set(s*(W/2 - 1.15), 6, z); scene.add(st);
+  const shield = box(0.4, 0.1, 0.4, trimMat); shield.position.set(s*(W/2 - 1.15), 6.28, z); scene.add(shield);
+  strobes.push({ mat: m, phase: (s > 0 ? 0.5 : 0) + i*0.25 });
+}
+
+/* ============================================================ volumetric-style fog planes + shafts + dust */
+const fogPlanes = [];
+function addFogPlane(w, h, x, y, z, flat, color, opacity) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+    new THREE.MeshBasicMaterial({ map:fogTex, color, transparent:true, opacity,
+      depthWrite:false, side:THREE.DoubleSide }));
+  if (flat) m.rotation.x = -Math.PI/2;
+  else m.rotation.y = Math.random()*Math.PI;
+  m.position.set(x, y, z);
+  m.renderOrder = 5;
+  scene.add(m);
+  fogPlanes.push({ m, base:opacity, phase:Math.random()*Math.PI*2,
+    vel:new THREE.Vector3((Math.random()-0.5)*0.22, (Math.random()-0.5)*0.04, (Math.random()-0.5)*0.12),
+    vr:(Math.random()-0.5)*0.03, flat });
+}
+for (let i = 0; i < 6; i++)   // drifting horizontal layers
+  addFogPlane(18 + Math.random()*16, 18 + Math.random()*16,
+    (Math.random()-0.5)*44, 1.6 + Math.random()*7, (Math.random()-0.5)*72,
+    true, 0x7fa8cc, 0.05 + Math.random()*0.04);
+for (let i = 0; i < 6; i++)   // slow vertical billows
+  addFogPlane(14 + Math.random()*14, 8 + Math.random()*7,
+    (Math.random()-0.5)*48, 3 + Math.random()*5, (Math.random()-0.5)*70,
+    false, 0x6f9cc4, 0.045 + Math.random()*0.035);
+for (let i = 0; i < 3; i++)   // ground mist hugging the runway
+  addFogPlane(36, 16, (Math.random()-0.5)*8, 0.7 + i*0.55, -14 + i*16, true, 0x7fa8cc, 0.06);
+
+// light shafts under the ceiling fixtures (crossed additive planes)
+for (const [fx, fz] of fixtures) {
+  for (const ry of [0, Math.PI/2]) {
+    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 15),
+      new THREE.MeshBasicMaterial({ map:beamTex, color:0xbcd9ff, transparent:true, opacity:0.09,
+        blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+    shaft.position.set(fx, H - 1.7 - 7.5, fz);
+    shaft.rotation.y = ry; shaft.renderOrder = 7; scene.add(shaft);
+  }
+}
+
+// floating dust
+const DUST = 260;
+const dustPos = new Float32Array(DUST*3), dustVel = new Float32Array(DUST*3);
+for (let i = 0; i < DUST; i++) {
+  dustPos[i*3]   = (Math.random()-0.5)*54;
+  dustPos[i*3+1] = 0.5 + Math.random()*19;
+  dustPos[i*3+2] = (Math.random()-0.5)*84;
+  dustVel[i*3]   = (Math.random()-0.5)*0.14;
+  dustVel[i*3+1] = 0.03 + Math.random()*0.08;
+  dustVel[i*3+2] = (Math.random()-0.5)*0.14;
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ map:dotTex, color:0x9fc9ff, size:0.22,
+  transparent:true, opacity:0.32, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true }));
+dust.frustumCulled = false; dust.renderOrder = 6; scene.add(dust);
+
+/* ============================================================ drones */
+const N_DRONES = 7;
+const FORMS = ['DELTA', 'LATTICE', 'ORBITAL', 'PHALANX'];
+let formIndex = 0;
+
+function formationOffset(name, i, t, out) {
+  const n = N_DRONES;
+  switch (name) {
+    case 'DELTA': {
+      if (i === 0) { out.set(0, 0, -7); break; }
+      const rank = Math.ceil(i/2), side = (i % 2 === 1) ? 1 : -1;
+      out.set(side*rank*3.4, rank*0.5, -7 + rank*4.6);
+      break;
+    }
+    case 'LATTICE': {
+      const cx = i % 3, rz = Math.floor(i/3);
+      out.set((cx - 1)*5.0, rz*1.1 + 0.4, (rz - 1)*5.0);
+      break;
+    }
+    case 'ORBITAL': {
+      const a = i/n*Math.PI*2 + t*0.35;
+      out.set(Math.cos(a)*9.5, Math.sin(t*0.6 + i*1.7)*1.6, Math.sin(a)*9.5);
+      break;
+    }
+    case 'PHALANX':
+      out.set((i - (n - 1)/2)*4.6, (i - (n - 1)/2)*0.55, 0);
+      break;
+  }
+  return out;
+}
+
+const anchorTarget = new THREE.Vector3(), anchorSmooth = new THREE.Vector3(0, 6.5, -6);
+function anchorPos(t, out) {
+  out.set(Math.sin(t*0.10)*13, 6.6 + Math.sin(t*0.043)*1.6, -6 + Math.sin(t*0.061 + 1.7)*17);
+  return out;
+}
+
+const drones = [];
+function buildDrone(index) {
+  const g = new THREE.Group();
+  const hullMat = new THREE.MeshStandardMaterial({ color:0x2b323e, metalness:0.85, roughness:0.32 });
+  const podMat  = new THREE.MeshStandardMaterial({ color:0x14181f, metalness:0.6,  roughness:0.5 });
+  const ringMat = new THREE.MeshStandardMaterial({ color:0x0b1016, emissive:0x36dcff, emissiveIntensity:1.5, roughness:0.4, metalness:0.2 });
+  const eyeMat  = new THREE.MeshStandardMaterial({ color:0x001014, emissive:0x57e8ff, emissiveIntensity:2.6 });
+  const navLMat = new THREE.MeshStandardMaterial({ color:0x200505, emissive:0xff2a22, emissiveIntensity:2 });
+  const navRMat = new THREE.MeshStandardMaterial({ color:0x052008, emissive:0x2bff62, emissiveIntensity:2 });
+
+  const hull = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 16), hullMat);
+  hull.scale.set(1, 0.5, 1.15); g.add(hull);
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.30, 20, 12), podMat);
+  canopy.position.set(0, 0.22, 0.05); canopy.scale.set(1, 0.7, 1.4); g.add(canopy);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.68, 0.03, 8, 48), ringMat);
+  ring.rotation.x = Math.PI/2; ring.position.y = 0.02; g.add(ring);
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 10), eyeMat);
+  eye.position.set(0, 0.02, -0.56); g.add(eye);
+
+  const rotors = [];
+  const podGeo = new THREE.CylinderGeometry(0.16, 0.2, 0.18, 10);
+  for (let k = 0; k < 4; k++) {
+    const a = Math.PI/4 + k*Math.PI/2;
+    const px = Math.cos(a)*0.78, pz = Math.sin(a)*0.78;
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.07, 0.12), podMat);
+    arm.position.set(px*0.5, 0.06, pz*0.5); arm.rotation.y = -a; g.add(arm);
+    const pod = new THREE.Mesh(podGeo, podMat); pod.position.set(px, 0.08, pz); g.add(pod);
+    const rotor = new THREE.Group(); rotor.position.set(px, 0.19, pz);
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.012, 20),
+      new THREE.MeshBasicMaterial({ color:0x9fd4ff, transparent:true, opacity:0.15, side:THREE.DoubleSide, depthWrite:false }));
+    rotor.add(disc);
+    for (let b = 0; b < 3; b++) {
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.012, 0.06), podMat);
+      blade.rotation.y = b*Math.PI*2/3; blade.position.y = 0.012; rotor.add(blade);
+    }
+    g.add(rotor); rotors.push(rotor);
+    const tipMat = k === 0 ? navLMat : (k === 2 ? navRMat : eyeMat);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), tipMat);
+    tip.position.set(px*1.12, 0.08, pz*1.12); g.add(tip);
+  }
+
+  const belly = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.14, 0.16, 10), podMat);
+  belly.position.y = -0.30; g.add(belly);
+  const tail = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), eyeMat);
+  tail.position.set(0, 0.05, 0.6); g.add(tail);
+
+  let cone = null, coneMat = null;
+  if (index === 0) {
+    coneMat = new THREE.MeshBasicMaterial({ color:0x63d9ff, transparent:true, opacity:0.12,
+      side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending });
+    cone = new THREE.Mesh(new THREE.ConeGeometry(1.5, 5.5, 24, 1, true), coneMat);
+    cone.position.y = -3.05; cone.renderOrder = 8; g.add(cone);
+  }
+
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3, 3),
+    new THREE.MeshBasicMaterial({ map:shadowTex, transparent:true, opacity:0.35, depthWrite:false }));
+  shadow.rotation.x = -Math.PI/2; shadow.position.y = 0.06; shadow.renderOrder = 2;
+  scene.add(shadow);
+
+  const off = formationOffset(FORMS[0], index, 0, new THREE.Vector3());
+  off.x += (Math.random()-0.5)*1.5; off.z += (Math.random()-0.5)*1.5;
+  scene.add(g);
+  drones.push({ g, rotors, ringMat, navLMat, navRMat, cone, coneMat, shadow, off,
+    prev:new THREE.Vector3(), phase:Math.random()*Math.PI*2, flash:0, lead:index === 0 });
+}
+for (let i = 0; i < N_DRONES; i++) buildDrone(i);
+anchorPos(0, anchorTarget); anchorSmooth.copy(anchorTarget);
+for (const d of drones) d.prev.copy(anchorSmooth).add(d.off);
+
+/* ============================================================ cinematic camera path */
+const v = (x, y, z) => new THREE.Vector3(x, y, z);
+const camPath = new THREE.CatmullRomCurve3([
+  v(0, 4.2, 40), v(7, 5.5, 26), v(16, 8, 6), v(14, 12, -18),
+  v(0, 9, -34), v(-13, 7, -20), v(-16, 4.5, 4), v(-7, 3.4, 26),
+], true, 'centripetal');
+
+let camT = 0, cine = true;
+const smoothLook = new THREE.Vector3(0, 6, -10);
+const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3(), tmpC = new THREE.Vector3(), vel = new THREE.Vector3();
+
+/* ============================================================ UI */
+const stFormation = document.getElementById('stFormation');
+const stCamera = document.getElementById('stCamera');
+const stFps = document.getElementById('stFps');
+const btnFormation = document.getElementById('btnFormation');
+const btnCamera = document.getElementById('btnCamera');
+
+function refreshHUD() {
+  stFormation.textContent = FORMS[formIndex];
+  btnFormation.textContent = 'FORMATION: ' + FORMS[formIndex];
+  stCamera.textContent = cine ? 'CINEMATIC' : 'FREE ORBIT';
+  btnCamera.textContent = 'CAMERA: ' + (cine ? 'CINEMATIC' : 'FREE ORBIT');
+}
+function toggleFormation() { formIndex = (formIndex + 1) % FORMS.length; for (const d of drones) d.flash = 1; refreshHUD(); }
+function toggleCamera() {
+  cine = !cine;
+  controls.enabled = !cine;
+  if (!cine) controls.target.copy(smoothLook);
+  refreshHUD();
+}
+btnFormation.addEventListener('click', toggleFormation);
+btnCamera.addEventListener('click', toggleCamera);
+addEventListener('keydown', (e) => {
+  if (e.key === 'f' || e.key === 'F') toggleFormation();
+  if (e.key === 'c' || e.key === 'C') toggleCamera();
+});
+refreshHUD();
+
+/* ============================================================ animation loop */
+const clock = new THREE.Clock();
+let t = 0, booted = false, fpsFrames = 0, fpsTime = 0;
+
+function strobePattern(t, period, phase) {
+  const u = ((t + phase) % period) / period;
+  return (u < 0.05 || (u > 0.11 && u < 0.16)) ? 3.4 : 0.12;
+}
+
+function tick() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  t += dt;
+
+  // formation anchor drift
+  anchorPos(t, anchorTarget);
+  anchorSmooth.lerp(anchorTarget, 1 - Math.exp(-dt*1.2));
+
+  // drones
+  for (let i = 0; i < drones.length; i++) {
+    const d = drones[i];
+    formationOffset(FORMS[formIndex], i, t, tmpA);
+    d.off.lerp(tmpA, 1 - Math.exp(-dt*(1.6 + (i % 3)*0.35)));
+    tmpB.copy(anchorSmooth).add(d.off);
+    tmpB.y += Math.sin(t*1.5 + d.phase)*0.38 + Math.sin(t*0.53 + d.phase*2)*0.15;
+
+    vel.subVectors(tmpB, d.prev).divideScalar(Math.max(dt, 1e-4));
+    d.prev.copy(tmpB);
+    d.g.position.copy(tmpB);
+
+    const bank = THREE.MathUtils.clamp(-vel.x*0.09, -0.55, 0.55) + Math.sin(t*0.9 + d.phase)*0.04;
+    const pitch = THREE.MathUtils.clamp(-vel.z*0.07, -0.35, 0.35) + Math.sin(t*1.1 + d.phase)*0.03;
+    const k4 = 1 - Math.exp(-dt*4);
+    d.g.rotation.z += (bank - d.g.rotation.z)*k4;
+    d.g.rotation.x += (pitch - d.g.rotation.x)*k4;
+    d.g.rotation.y = Math.sin(t*0.23 + d.phase)*0.25;
+
+    for (let r = 0; r < d.rotors.length; r++) d.rotors[r].rotation.y += (r % 2 ? 1 : -1)*dt*(26 + i);
+    const blink = Math.sin(t*3.4 + d.phase*3) > 0.55;
+    d.navLMat.emissiveIntensity = blink ? 3.2 : 0.15;
+    d.navRMat.emissiveIntensity = blink ? 0.15 : 3.2;
+    d.flash *= Math.exp(-dt*3);
+    d.ringMat.emissiveIntensity = 1.4 + Math.sin(t*2 + d.phase)*0.5 + d.flash*3;
+
+    if (d.lead && d.cone) {
+      d.coneMat.opacity = 0.10 + 0.05*Math.sin(t*7.3) + 0.02*Math.sin(t*23.7);
+      d.cone.rotation.y = Math.sin(t*0.8)*0.7;
+    }
+
+    d.shadow.position.set(tmpB.x, 0.06, tmpB.z);
+    d.shadow.material.opacity = THREE.MathUtils.clamp(0.42 - tmpB.y*0.032, 0.05, 0.5);
+    const sc = 1 + tmpB.y*0.05;
+    d.shadow.scale.set(sc, sc, 1);
+  }
+
+  // warning beacons
+  for (const b of beacons) {
+    const p = Math.pow(Math.sin(t*5.0 + b.phase)*0.5 + 0.5, 2);
+    b.spinner.rotation.y = t*2.4 * (b.phase ? -1 : 1);
+    b.light.intensity = 60 + p*300;
+    b.domeMat.emissiveIntensity = 0.6 + p*4;
+    b.glowMat.opacity = 0.12 + p*0.5;
+  }
+  // wall strobes
+  for (const s of strobes) s.mat.emissiveIntensity = strobePattern(t, 2.0, s.phase);
+
+  // runway chase + rails + chevrons + door
+  const head = 46 - ((t*7) % 92);
+  for (const dseg of dashes) {
+    const dd = dseg.z - head;
+    dseg.mat.emissiveIntensity = 0.5 + Math.exp(-dd*dd/30)*3.2;
+  }
+  railMat.emissiveIntensity = 1.65 + Math.sin(t*1.3)*0.3;
+  for (const c of chevrons) c.mat.emissiveIntensity = 0.8 + Math.pow(Math.max(0, Math.sin(t*2.2 - c.phase)), 3)*2.6;
+  seamMat.emissiveIntensity = 1.2 + Math.sin(t*1.8)*0.7;
+  amberStripMat.emissiveIntensity = 1.0 + Math.sin(t*0.7)*0.15;
+
+  // fog planes drift
+  for (const f of fogPlanes) {
+    f.m.position.addScaledVector(f.vel, dt);
+    const p = f.m.position;
+    if (f.flat) {
+      if (p.x > 27) p.x = -27; if (p.x < -27) p.x = 27;
+      if (p.z > 40) p.z = -40; if (p.z < -40) p.z = 40;
+    } else {
+      if (p.x > 26) p.x = -26; if (p.x < -26) p.x = 26;
+      if (p.z > 38) p.z = -38; if (p.z < -38) p.z = 38;
+      if (p.y > 9) p.y = 2.5; if (p.y < 2.5) p.y = 9;
+    }
+    if (!f.flat) f.m.rotation.y += f.vr*dt;
+    f.m.material.opacity = f.base + Math.sin(t*0.4 + f.phase)*0.018;
+  }
+
+  // dust
+  const dp = dustGeo.attributes.position.array;
+  for (let i = 0; i < DUST; i++) {
+    dp[i*3]   += dustVel[i*3]*dt;
+    dp[i*3+1] += dustVel[i*3+1]*dt;
+    dp[i*3+2] += dustVel[i*3+2]*dt;
+    if (dp[i*3+1] > 20) dp[i*3+1] = 0.5;
+    if (dp[i*3] > 27) dp[i*3] = -27; if (dp[i*3] < -27) dp[i*3] = 27;
+    if (dp[i*3+2] > 42) dp[i*3+2] = -42; if (dp[i*3+2] < -42) dp[i*3+2] = 42;
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+
+  // camera
+  if (cine) {
+    camT = (camT + dt*0.012) % 1;
+    const p = camPath.getPointAt(camT);
+    camera.position.lerp(p, 1 - Math.exp(-dt*2.0));
+    const ahead = camPath.getPointAt((camT + 0.045) % 1, tmpC);
+    tmpA.copy(ahead).lerp(anchorSmooth, 0.42);
+    tmpA.x += Math.sin(t*0.31)*1.1;
+    tmpA.y += Math.sin(t*0.23)*0.5;
+    smoothLook.lerp(tmpA, 1 - Math.exp(-dt*2.5));
+    camera.lookAt(smoothLook);
+  } else {
+    controls.update();
+  }
+
+  composer.render();
+
+  if (!booted) { booted = true; bootEl.classList.add('done'); }
+  fpsFrames++; fpsTime += dt;
+  if (fpsTime >= 0.5) { stFps.textContent = Math.round(fpsFrames/fpsTime); fpsFrames = 0; fpsTime = 0; }
+}
+renderer.setAnimationLoop(tick);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

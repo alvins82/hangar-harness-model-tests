@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sector 7 — Sci-Fi Hangar</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --cyan: #5eead4;
+      --blue: #60a5fa;
+      --red: #f87171;
+      --glass: rgba(5, 9, 18, 0.68);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #020409;
+      color: #e2e8f0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    canvas {
+      display: block;
+      touch-action: none;
+    }
+
+    .overlay {
+      position: fixed;
+      z-index: 10;
+      pointer-events: none;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .title {
+      top: 24px;
+      left: 28px;
+      max-width: min(58ch, calc(100vw - 56px));
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 3vw, 2.2rem);
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .title p {
+      margin: 7px 0 0;
+      color: rgba(226, 232, 240, 0.72);
+      font-size: 0.82rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .controls {
+      left: 24px;
+      bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 999px;
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
+    }
+
+    .controls button {
+      min-width: 143px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 999px;
+      color: #f8fafc;
+      background: rgba(148, 163, 184, 0.13);
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .controls button:hover,
+    .controls button:focus-visible {
+      background: rgba(94, 234, 212, 0.17);
+      color: #fff;
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .controls button[aria-pressed="true"] {
+      background: rgba(94, 234, 212, 0.9);
+      color: #052e2b;
+    }
+
+    .controls button:focus-visible {
+      box-shadow: 0 0 0 2px rgba(94, 234, 212, 0.55);
+    }
+
+    .status {
+      right: 26px;
+      bottom: 28px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(2, 6, 14, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      color: rgba(226, 232, 240, 0.64);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hint {
+      right: 26px;
+      top: 26px;
+      max-width: min(30ch, calc(100vw - 52px));
+      color: rgba(226, 232, 240, 0.52);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      line-height: 1.7;
+      text-align: right;
+    }
+
+    .fallback {
+      display: grid;
+      place-items: center;
+      min-height: 100%;
+      padding: 32px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 540px) {
+      .title { left: 18px; top: 18px; }
+      .hint { display: none; }
+      .status { display: none; }
+      .controls {
+        left: 12px;
+        right: 12px;
+        bottom: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        border-radius: 22px;
+      }
+      .controls button { flex: 1 1 150px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .controls button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="Interactive Three.js hangar scene">
+    <div id="scene-root" aria-hidden="true"></div>
+
+    <section class="overlay title">
+      <h1>Sector 7 Hangar</h1>
+      <p>Drone command · active guidance</p>
+    </section>
+
+    <aside class="overlay hint" aria-hidden="true">
+      Manual mode: drag to orbit · scroll to zoom
+    </aside>
+
+    <nav class="overlay controls" aria-label="Hangar scene controls">
+      <button id="formation-toggle" type="button" aria-pressed="false">Formation: Off</button>
+      <button id="camera-toggle" type="button" aria-pressed="true">Camera: Cinematic</button>
+    </nav>
+
+    <div id="status" class="overlay status" role="status" aria-live="polite">Initializing</div>
+    <noscript>This scene requires JavaScript.</noscript>
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    const root = document.getElementById('scene-root');
+    const status = document.getElementById('status');
+    const formationButton = document.getElementById('formation-toggle');
+    const cameraButton = document.getElementById('camera-toggle');
+
+    try {
+      const THREE = await import('three');
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let formationOn = false;
+      let cinematic = !reducedMotion;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x03050b);
+      scene.fog = new THREE.FogExp2(0x05070f, 0.0135);
+
+      const camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 320);
+      camera.position.set(-42, 8, 22);
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.18;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      root.appendChild(renderer.domElement);
+
+      const hemisphere = new THREE.HemisphereLight(0x1d3557, 0x010205, 0.42);
+      scene.add(hemisphere);
+
+      const mainLight = new THREE.SpotLight(0xdbeafe, 1300, 150, 0.72, 0.48, 1.8);
+      mainLight.position.set(0, 25, 0);
+      mainLight.castShadow = true;
+      mainLight.shadow.mapSize.set(1024, 1024);
+      mainLight.shadow.camera.near = 6;
+      mainLight.shadow.camera.far = 70;
+      mainLight.shadow.bias = -0.0008;
+      scene.add(mainLight, mainLight.target);
+
+      const cyanFillA = new THREE.PointLight(0x5eead4, 75, 72, 2);
+      cyanFillA.position.set(-30, 11, 0);
+      const cyanFillB = new THREE.PointLight(0x60a5fa, 58, 64, 2);
+      cyanFillB.position.set(30, 10, 2);
+      scene.add(cyanFillA, cyanFillB);
+
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x0a0d13,
+        roughness: 0.68,
+        metalness: 0.18
+      });
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(132, 68), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      const laneMat = new THREE.MeshStandardMaterial({
+        color: 0x111826,
+        roughness: 0.42,
+        metalness: 0.52
+      });
+      const runway = new THREE.Mesh(new THREE.BoxGeometry(98, 0.04, 18), laneMat);
+      runway.position.set(0, 0.022, 0);
+      runway.receiveShadow = true;
+      scene.add(runway);
+
+      const runwayStrips = [];
+      function addStrip(width, depth, x, z, color, pulseSpeed) {
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x0b1220,
+          emissive: new THREE.Color(color),
+          emissiveIntensity: 1.6,
+          roughness: 0.28,
+          metalness: 0.1
+        });
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.055, depth), material);
+        strip.position.set(x, 0.05, z);
+        strip.receiveShadow = true;
+        scene.add(strip);
+        runwayStrips.push({ mesh: strip, material, speed: pulseSpeed, phase: x * 0.08 });
+        return strip;
+      }
+
+      for (let x = -46; x <= 46; x += 3.2) {
+        addStrip(2.05, 0.2, x, -7.7, 0x5eead4, 2.2);
+        addStrip(2.05, 0.2, x, 7.7, 0x5eead4, 2.2);
+        addStrip(1.2, 0.11, x, 0, 0x38bdf8, 1.4);
+      }
+
+      for (let z = -6; z <= 6; z += 2) {
+        addStrip(0.16, 0.12, -50, z, 0xf59e0b, 3.5);
+        addStrip(0.16, 0.12, 50, z, 0xf59e0b, 3.5);
+      }
+
+      const wallMat = new THREE.MeshStandardMaterial({
+        color: 0x0d121b,
+        roughness: 0.62,
+        metalness: 0.55
+      });
+      const ribMat = new THREE.MeshStandardMaterial({
+        color: 0x161f2d,
+        roughness: 0.38,
+        metalness: 0.82
+      });
+      const accentMat = new THREE.MeshStandardMaterial({
+        color: 0x02110f,
+        emissive: new THREE.Color(0x2dd4bf),
+        emissiveIntensity: 1.5,
+        roughness: 0.3,
+        metalness: 0.1
+      });
+
+      const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(132, 19), wallMat);
+      wallLeft.position.set(0, 9.5, -30.5);
+      wallLeft.receiveShadow = true;
+      scene.add(wallLeft);
+
+      const wallRight = wallLeft.clone();
+      wallRight.rotation.y = Math.PI;
+      wallRight.position.z = 30.5;
+      scene.add(wallRight);
+
+      const rearWall = new THREE.Mesh(new THREE.PlaneGeometry(68, 19), wallMat);
+      rearWall.rotation.y = Math.PI / 2;
+      rearWall.position.set(-59, 9.5, 0);
+      rearWall.receiveShadow = true;
+      scene.add(rearWall);
+
+      const frontGate = new THREE.Mesh(new THREE.BoxGeometry(1, 18, 62), wallMat);
+      frontGate.position.set(59, 9, 0);
+      scene.add(frontGate);
+
+      const gateGlowMat = accentMat.clone();
+      gateGlowMat.emissive.set(0x60a5fa);
+      for (const z of [-18, 18]) {
+        const gateLine = new THREE.Mesh(new THREE.BoxGeometry(0.14, 15, 0.34), gateGlowMat);
+        gateLine.position.set(58.35, 8.5, z);
+        scene.add(gateLine);
+      }
+
+      for (let x = -52; x <= 52; x += 13) {
+        for (const z of [-29.5, 29.5]) {
+          const column = new THREE.Mesh(new THREE.BoxGeometry(1.3, 18, 1.3), ribMat);
+          column.position.set(x, 9, z);
+          column.castShadow = true;
+          scene.add(column);
+
+          const accent = new THREE.Mesh(new THREE.BoxGeometry(0.18, 15, 0.18), accentMat);
+          accent.position.set(x, 8.2, z + (z < 0 ? 0.74 : -0.74));
+          scene.add(accent);
+        }
+
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 59), ribMat);
+        beam.position.set(x, 18, 0);
+        beam.castShadow = true;
+        scene.add(beam);
+      }
+
+      for (let z = -24; z <= 24; z += 12) {
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(118, 0.42, 0.85), wallMat);
+        roof.position.set(0, 17.4, z);
+        roof.castShadow = true;
+        scene.add(roof);
+      }
+
+      const beacons = [];
+      function addBeacon(x, z, phase) {
+        const group = new THREE.Group();
+        group.position.set(x, 0.06, z);
+
+        const housing = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.32, 0.42, 0.35, 16),
+          ribMat
+        );
+        housing.position.y = 0.18;
+        group.add(housing);
+
+        const bulbMat = new THREE.MeshStandardMaterial({
+          color: 0x1a0306,
+          emissive: new THREE.Color(0xff3860),
+          emissiveIntensity: 0.7,
+          roughness: 0.2
+        });
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 12), bulbMat);
+        bulb.position.y = 0.52;
+        group.add(bulb);
+
+        const light = new THREE.PointLight(0xff4d6d, 6, 32, 2);
+        light.position.set(x, 4.2, z);
+
+        const beamMat = new THREE.MeshBasicMaterial({
+          color: 0xff4d6d,
+          transparent: true,
+          opacity: 0.06,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+        const beam = new THREE.Mesh(new THREE.PlaneGeometry(11, 1.7), beamMat);
+        beam.rotation.x = -Math.PI / 2;
+        beam.position.set(5.5, 0.03, 0);
+        group.add(beam);
+
+        scene.add(group, light);
+        beacons.push({ group, bulb, bulbMat, beam, beamMat, light, phase });
+      }
+
+      addBeacon(-52, -26, 0);
+      addBeacon(-26, 26, 1.7);
+      addBeacon(0, -26, 3.1);
+      addBeacon(26, 26, 4.4);
+      addBeacon(52, -26, 5.6);
+
+      const droneCount = 12;
+      const drones = [];
+      const droneBodyMat = new THREE.MeshStandardMaterial({
+        color: 0x1c2532,
+        roughness: 0.34,
+        metalness: 0.86
+      });
+      const droneDarkMat = new THREE.MeshStandardMaterial({
+        color: 0x0b111b,
+        roughness: 0.52,
+        metalness: 0.45
+      });
+
+      const formationPoints = [
+        [0, 0], [4.5, 0], [-4.5, 0], [2.4, 2.6], [-2.4, 2.6],
+        [2.4, -2.6], [-2.4, -2.6], [9, 0], [-9, 0], [5, 5.2],
+        [-5, 5.2], [0, 7.4]
+      ];
+
+      function makeDrone(index) {
+        const drone = new THREE.Group();
+
+        const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 0.72, 5, 14), droneBodyMat);
+        body.rotation.z = Math.PI / 2;
+        body.castShadow = true;
+        drone.add(body);
+
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.055, 8, 26), droneDarkMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.castShadow = true;
+        drone.add(ring);
+
+        const eyeMat = new THREE.MeshStandardMaterial({
+          color: 0x100403,
+          emissive: new THREE.Color(0xffd166),
+          emissiveIntensity: 2.5,
+          roughness: 0.15
+        });
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 10), eyeMat);
+        eye.position.set(0.52, 0.03, 0);
+        drone.add(eye);
+
+        const rotorPositions = [
+          [-0.72, 0.18, -0.72],
+          [-0.72, 0.18, 0.72],
+          [0.72, 0.18, -0.72],
+          [0.72, 0.18, 0.72]
+        ];
+        const rotors = [];
+        for (const rotorPosition of rotorPositions) {
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.44), droneDarkMat);
+          arm.position.copy(rotorPosition).multiplyScalar(0.6);
+          arm.lookAt(rotorPosition);
+          drone.add(arm);
+
+          const rotor = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.012, 0.05), droneDarkMat);
+          rotor.position.copy(rotorPosition);
+          rotor.castShadow = true;
+          drone.add(rotor);
+          rotors.push(rotor);
+        }
+
+        const formationPoint = new THREE.Vector3(
+          formationPoints[index][0],
+          4.4 + (Math.abs(formationPoints[index][1]) * 0.14),
+          formationPoints[index][1] * 1.4
+        );
+        const patrolPoint = new THREE.Vector3(
+          -34 + (index % 6) * 12.5,
+          3.5 + ((index * 37) % 10) * 0.5,
+          -17 + ((index * 73) % 12) * 2.8
+        );
+
+        const start = patrolPoint.clone();
+        start.x += Math.sin(index) * 2;
+        drone.position.copy(start);
+        drone.userData = {
+          index,
+          formationPoint,
+          patrolPoint,
+          seed: index * 1.35,
+          rotors,
+          eyeMat,
+          lastPosition: start.clone(),
+          smoothYaw: 0
+        };
+        scene.add(drone);
+        drones.push(drone);
+      }
+
+      for (let i = 0; i < droneCount; i++) makeDrone(i);
+
+      const fogShader = {
+        uniforms: { uTime: { value: 0 } },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          precision highp float;
+          uniform float uTime;
+          varying vec2 vUv;
+
+          float hash(vec2 point) {
+            return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
+          }
+
+          float noise(vec2 point) {
+            vec2 cell = floor(point);
+            vec2 local = fract(point);
+            vec2 smoothLocal = local * local * (3.0 - 2.0 * local);
+            float a = hash(cell);
+            float b = hash(cell + vec2(1.0, 0.0));
+            float c = hash(cell + vec2(0.0, 1.0));
+            float d = hash(cell + vec2(1.0, 1.0));
+            return mix(mix(a, b, smoothLocal.x), mix(c, d, smoothLocal.x), smoothLocal.y);
+          }
+
+          float fbm(vec2 point) {
+            float total = 0.0;
+            float amplitude = 0.55;
+            for (int index = 0; index < 4; index++) {
+              total += noise(point) * amplitude;
+              point *= 2.07;
+              amplitude *= 0.48;
+            }
+            return total;
+          }
+
+          void main() {
+            vec2 flow = vec2(vUv.x * 7.0 + uTime * 0.05, vUv.y * 3.4 - uTime * 0.015);
+            float haze = fbm(flow);
+            float edgeX = smoothstep(0.0, 0.32, vUv.x) * smoothstep(1.0, 0.68, vUv.x);
+            float edgeY = smoothstep(0.0, 0.45, vUv.y) * smoothstep(1.0, 0.55, vUv.y);
+            float alpha = smoothstep(0.48, 0.86, haze) * 0.14 * edgeX * edgeY;
+            vec3 color = mix(vec3(0.16, 0.31, 0.40), vec3(0.24, 0.45, 0.50), haze);
+            gl_FragColor = vec4(color, alpha);
+          }
+        `
+      };
+
+      const fogPlanes = [];
+      function addFogPlane(y, sizeScale, rotation) {
+        const material = new THREE.ShaderMaterial({
+          ...fogShader,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(112 * sizeScale, 56 * sizeScale), material);
+        plane.rotation.x = -Math.PI / 2;
+        plane.rotation.z = rotation;
+        plane.position.y = y;
+        scene.add(plane);
+        fogPlanes.push(material);
+      }
+
+      addFogPlane(0.8, 1, 0.02);
+      addFogPlane(3.2, 0.94, -0.03);
+      addFogPlane(6.4, 0.85, 0.015);
+      addFogPlane(10.5, 0.7, -0.025);
+
+      const cameraPath = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-47, 8.5, 22),
+        new THREE.Vector3(-24, 5.2, 10),
+        new THREE.Vector3(-2, 5.4, 21),
+        new THREE.Vector3(20, 8.6, 12),
+        new THREE.Vector3(46, 6.5, 23),
+        new THREE.Vector3(40, 12.5, 0),
+        new THREE.Vector3(12, 10, -12),
+        new THREE.Vector3(-18, 7.2, -6)
+      ], true, 'centripetal', 0.45);
+
+      let cameraPathT = 0;
+      const cameraLookTarget = new THREE.Vector3(0, 4, 0);
+      const cameraFocus = new THREE.Vector3(0, 4.5, 0);
+
+      const orbit = {
+        target: new THREE.Vector3(0, 4, 0),
+        theta: -0.85,
+        phi: 1.13,
+        radius: 42,
+        dragging: false,
+        lastX: 0,
+        lastY: 0
+      };
+
+      function updateOrbitCamera() {
+        const sinPhi = Math.sin(orbit.phi);
+        camera.position.set(
+          orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta),
+          orbit.target.y + orbit.radius * Math.cos(orbit.phi),
+          orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta)
+        );
+        camera.lookAt(orbit.target);
+      }
+
+      function toggleCamera() {
+        cinematic = !cinematic;
+        if (!cinematic) {
+          const delta = camera.position.clone().sub(orbit.target);
+          orbit.radius = THREE.MathUtils.clamp(delta.length(), 20, 64);
+          orbit.theta = Math.atan2(delta.x, delta.z);
+          orbit.phi = THREE.MathUtils.clamp(Math.acos(THREE.MathUtils.clamp(delta.y / orbit.radius, -1, 1)), 0.32, 1.42);
+        }
+        cameraButton.textContent = cinematic ? 'Camera: Cinematic' : 'Camera: Manual';
+        cameraButton.setAttribute('aria-pressed', String(cinematic));
+        status.textContent = cinematic ? 'Cinematic camera' : 'Manual camera';
+      }
+
+      function toggleFormation() {
+        formationOn = !formationOn;
+        formationButton.textContent = formationOn ? 'Formation: On' : 'Formation: Off';
+        formationButton.setAttribute('aria-pressed', String(formationOn));
+        status.textContent = formationOn ? 'Drone formation engaged' : 'Patrol dispersal';
+      }
+
+      formationButton.addEventListener('click', toggleFormation);
+      cameraButton.addEventListener('click', toggleCamera);
+      cameraButton.setAttribute('aria-pressed', String(cinematic));
+      cameraButton.textContent = cinematic ? 'Camera: Cinematic' : 'Camera: Manual';
+
+      renderer.domElement.addEventListener('pointerdown', (event) => {
+        if (cinematic) return;
+        orbit.dragging = true;
+        orbit.lastX = event.clientX;
+        orbit.lastY = event.clientY;
+        renderer.domElement.setPointerCapture(event.pointerId);
+      });
+
+      renderer.domElement.addEventListener('pointermove', (event) => {
+        if (!orbit.dragging || cinematic) return;
+        const dx = event.clientX - orbit.lastX;
+        const dy = event.clientY - orbit.lastY;
+        orbit.lastX = event.clientX;
+        orbit.lastY = event.clientY;
+        orbit.theta -= dx * 0.005;
+        orbit.phi = THREE.MathUtils.clamp(orbit.phi - dy * 0.004, 0.32, 1.42);
+      });
+
+      renderer.domElement.addEventListener('pointerup', (event) => {
+        orbit.dragging = false;
+        if (renderer.domElement.hasPointerCapture(event.pointerId)) {
+          renderer.domElement.releasePointerCapture(event.pointerId);
+        }
+      });
+
+      renderer.domElement.addEventListener('wheel', (event) => {
+        if (cinematic) return;
+        event.preventDefault();
+        orbit.radius = THREE.MathUtils.clamp(orbit.radius + event.deltaY * 0.025, 20, 64);
+      }, { passive: false });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      });
+
+      function lerpAngle(current, target, amount) {
+        let difference = (target - current) % (Math.PI * 2);
+        if (difference > Math.PI) difference -= Math.PI * 2;
+        if (difference < -Math.PI) difference += Math.PI * 2;
+        return current + difference * amount;
+      }
+
+      function updateDrones(elapsed, deltaTime) {
+        for (const drone of drones) {
+          const data = drone.userData;
+          const base = formationOn ? data.formationPoint : data.patrolPoint;
+          const seed = data.seed;
+
+          const targetX = base.x + Math.sin(elapsed * 0.19 + seed) * (formationOn ? 0.42 : 3.1);
+          const targetY = base.y + Math.sin(elapsed * 0.68 + seed * 1.7) * 0.36 + (formationOn ? Math.sin(seed) * 0.12 : 0);
+          const targetZ = base.z + Math.cos(elapsed * 0.16 + seed * 0.8) * (formationOn ? 0.38 : 2.7);
+
+          data.lastPosition.copy(drone.position);
+          drone.position.lerp(new THREE.Vector3(targetX, targetY, targetZ), 1 - Math.exp(-deltaTime * 1.35));
+
+          const velocity = drone.position.clone().sub(data.lastPosition);
+          const horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+          if (horizontalSpeed > 0.00002) {
+            const targetYaw = Math.atan2(velocity.x, velocity.z) + Math.PI / 2;
+            data.smoothYaw = lerpAngle(data.smoothYaw, targetYaw, 1 - Math.exp(-deltaTime * 3));
+          }
+          drone.rotation.y = data.smoothYaw;
+          drone.rotation.x = THREE.MathUtils.clamp(-velocity.z * 10, -0.18, 0.18);
+          drone.rotation.z = THREE.MathUtils.clamp(velocity.x * 10, -0.18, 0.18);
+
+          for (const [rotorIndex, rotor] of data.rotors.entries()) {
+            rotor.rotation.y = elapsed * (22 + rotorIndex * 2.5) * (rotorIndex % 2 === 0 ? 1 : -1);
+          }
+
+          const eyePulse = 0.5 + 0.5 * Math.sin(elapsed * 2.4 + data.seed);
+          data.eyeMat.emissiveIntensity = 1.5 + eyePulse * 2.5;
+        }
+      }
+
+      function updateRunway(elapsed) {
+        for (const strip of runwayStrips) {
+          const pulse = 0.55 + 0.45 * Math.sin(elapsed * strip.speed - strip.phase);
+          strip.material.emissiveIntensity = 0.9 + pulse * 2.2;
+        }
+      }
+
+      function updateBeacons(elapsed) {
+        for (const [index, beacon] of beacons.entries()) {
+          const pulse = Math.pow(0.5 + 0.5 * Math.sin(elapsed * 3.2 + beacon.phase), 4);
+          beacon.bulbMat.emissiveIntensity = 0.35 + pulse * 7;
+          beacon.light.intensity = 2.5 + pulse * 38;
+          beacon.group.rotation.y = elapsed * (1.5 + index * 0.14) * (index % 2 === 0 ? 1 : -1);
+          beacon.beamMat.opacity = 0.028 + pulse * 0.075;
+        }
+      }
+
+      const clock = new THREE.Clock();
+      status.textContent = reducedMotion ? 'Reduced motion · manual camera' : 'Systems online';
+
+      renderer.setAnimationLoop(() => {
+        const deltaTime = Math.min(clock.getDelta(), 0.05);
+        const elapsed = clock.elapsedTime;
+
+        updateDrones(elapsed, deltaTime);
+        updateRunway(elapsed);
+        updateBeacons(elapsed);
+
+        for (const material of fogPlanes) material.uniforms.uTime.value = elapsed;
+
+        if (formationOn) {
+          cameraFocus.lerp(new THREE.Vector3(0, 4.8, 0), 1 - Math.exp(-deltaTime * 0.8));
+        } else {
+          cameraFocus.lerp(new THREE.Vector3(0, 3.2, 0), 1 - Math.exp(-deltaTime * 0.8));
+        }
+
+        if (cinematic) {
+          cameraPathT = (cameraPathT + deltaTime * 0.017) % 1;
+          const pathPoint = cameraPath.getPointAt(cameraPathT);
+          const lookPoint = cameraPath.getPointAt((cameraPathT + 0.022) % 1);
+          camera.position.lerp(pathPoint, 1 - Math.exp(-deltaTime * 2.8));
+          cameraLookTarget.lerp(lookPoint.multiplyScalar(0.35).add(cameraFocus.clone().multiplyScalar(0.65)), 1 - Math.exp(-deltaTime * 2.1));
+          camera.lookAt(cameraLookTarget);
+        } else {
+          updateOrbitCamera();
+        }
+
+        renderer.render(scene, camera);
+      });
+    } catch (error) {
+      console.error(error);
+      root.innerHTML = `
+        <div class="fallback">
+          <div>
+            <strong>Unable to start the Three.js scene.</strong><br>
+            Check the network connection and reload, or open the browser console for details.
+          </div>
+        </div>
+      `;
+      status.textContent = 'Scene unavailable';
+    }
+  </script>
+</body>
+</html>
