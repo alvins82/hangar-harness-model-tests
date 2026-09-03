@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hangar Harness / Model Tests</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05080d;
+      --panel: rgba(10, 18, 28, 0.78);
+      --line: rgba(111, 227, 255, 0.22);
+      --cyan: #6fe3ff;
+      --amber: #ffbd68;
+      --muted: #8fa7b8;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      padding: 48px 24px 64px;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(39, 109, 145, 0.18), transparent 32rem),
+        linear-gradient(145deg, #07101a, var(--bg) 52%, #020305);
+      color: #e7f4fa;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: 0.24;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
+    }
+
+    .wrap { width: min(1120px, 100%); margin: 0 auto; }
+
+    header {
+      margin-bottom: 34px;
+      padding: 26px 28px 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(14, 34, 49, 0.84), rgba(4, 10, 17, 0.72));
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--cyan);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3.7rem);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .intro {
+      max-width: 66ch;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 20px;
+      color: var(--amber);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .group { margin-top: 30px; }
+
+    .group h2 {
+      margin: 0 0 12px;
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      display: flex;
+      min-height: 160px;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 19px 20px 17px;
+      border: 1px solid var(--line);
+      color: inherit;
+      background: var(--panel);
+      text-decoration: none;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      border-color: var(--cyan);
+      background: rgba(13, 38, 54, 0.9);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .label {
+      color: var(--cyan);
+      font-size: 0.66rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .card h3 {
+      margin: 9px 0 0;
+      color: #f2fbff;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    code {
+      display: block;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+      font-size: 0.68rem;
+      line-height: 1.5;
+    }
+
+    .open {
+      color: var(--amber);
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      margin-top: 42px;
+      color: #617789;
+      font-size: 0.7rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 22px 14px 44px; }
+      header { padding: 22px 19px; }
+      h1 { letter-spacing: 0.08em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Sector 07 // Comparative Render Lab</p>
+      <h1>Hangar Harness / Model Tests</h1>
+      <p class="intro">Interactive Three.js outputs grouped by the harness used to generate them. Select a run to open its standalone HTML scene.</p>
+      <div class="meta"><span>09 scenes</span><span>static HTML</span><span>GitHub Pages ready</span></div>
+    </header>
+
+    <section class="group" aria-labelledby="codex-heading">
+      <h2 id="codex-heading">Codex</h2>
+      <div class="grid">
+        <a class="card" href="hangar-codex-glm53flash-max/sci-fi-hangar.html">
+          <div><span class="label">GLM 5.3 Flash Max</span><h3>Sci-Fi Hangar</h3></div>
+          <div><code>hangar-codex-glm53flash-max/sci-fi-hangar.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+        <a class="card" href="hangar-codex-luna56-max/codex-luna-max.html">
+          <div><span class="label">Luna 5.6 Max</span><h3>Codex Luna</h3></div>
+          <div><code>hangar-codex-luna56-max/codex-luna-max.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+        <a class="card" href="hangar-codex-sol56-max/codex-sol-max.html">
+          <div><span class="label">SOL 5.6 Max</span><h3>Codex SOL</h3></div>
+          <div><code>hangar-codex-sol56-max/codex-sol-max.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="omp-heading">
+      <h2 id="omp-heading">OMP</h2>
+      <div class="grid">
+        <a class="card" href="hangar-omp-glm53-flash/omp-glm57-flash-max.html">
+          <div><span class="label">GLM 5.3 folder · file says GLM 5.7</span><h3>Orbital Refit Hangar</h3></div>
+          <div><code>hangar-omp-glm53-flash/omp-glm57-flash-max.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+        <a class="card" href="hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html">
+          <div><span class="label">Qwen 3.8 27B x-high</span><h3>Sci-Fi Hangar</h3></div>
+          <div><code>hangar-omp-qwen3827b-xhigh/sci-fi-hangar.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="opencode-heading">
+      <h2 id="opencode-heading">OpenCode</h2>
+      <div class="grid">
+        <a class="card" href="hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html">
+          <div><span class="label">GLM 5.7 Flash Max</span><h3>Orbital Dock</h3></div>
+          <div><code>hangar-opencode-glm5.7flash/opencode-glm57-flash-max.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+        <a class="card" href="hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html">
+          <div><span class="label">Qwen 3.8 27B x-high</span><h3>OpenCode Hangar</h3></div>
+          <div><code>hangar-opencode-qwen3827b-xhigh/opencode-qwen38-27b-xhigh.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" aria-labelledby="dsh-heading">
+      <h2 id="dsh-heading">DSH</h2>
+      <div class="grid">
+        <a class="card" href="hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html">
+          <div><span class="label">PTC · Qwen 3.8 27B x-high</span><h3>Hangar 20</h3></div>
+          <div><code>hangar-dsh-ptc-qwen3827b-xhigh/hangar20.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+        <a class="card" href="hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html">
+          <div><span class="label">Qwen 3.8 27B x-high</span><h3>DeepSeek Harness</h3></div>
+          <div><code>hangar-dsh-qwen3827b-xhigh/deepseekharness-qwen3827b-xhigh.html</code><span class="open">Open scene ↗</span></div>
+        </a>
+      </div>
+    </section>
+
+    <footer>All links are relative to this repository, so the index works from GitHub Pages or a local HTTP server.</footer>
+  </div>
+</body>
+</html>
