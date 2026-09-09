@@ -38,6 +38,9 @@ RATES = {
     "luna":  (0.200,  0.020, 1.200),
     "sol":   (1.000,  0.100, 5.000),
     "astra": (10.000, 1.000, 50.000),
+    # Added to run the baseline's own model through this harness, so the only
+    # variable between it and the Claude Code baseline is the harness.
+    "opus":  (5.000,  0.500, 25.000),
 }
 
 LABELS = {
@@ -46,6 +49,7 @@ LABELS = {
     "luna": "Luna 5.6 Max",
     "sol": "SOL 5.6 Max",
     "astra": "Astra 6.0 Max",
+    "opus":  "Opus 5",
 }
 
 
