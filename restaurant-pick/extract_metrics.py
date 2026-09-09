@@ -3,7 +3,8 @@
 
 Handles the four transcript shapes in this repository:
 
-  codex     event_msg/token_count -> payload.info.total_token_usage   (JSONL)
+  codex       event_msg/token_count -> payload.info.total_token_usage (JSONL)
+  openrouter  assistant/message.usage, summed over turns               (JSONL)
   omp       message.message.usage, summed over messages               (JSONL)
   opencode  info.tokens + info.time                                   (JSON)
   dsh       assistant/message.data.usage, summed over messages        (JSONL)
@@ -93,6 +94,8 @@ def detect(path, first):
         return "codex"
     if first.get("type") == "session" and "delegationDepth" in first:
         return "dsh"
+    if first.get("type") == "session" and "model_key" in first:
+        return "openrouter"
     if first.get("type") in ("title", "session", "metadata", "model_change"):
         return "omp"
     sys.exit(
@@ -278,8 +281,62 @@ def parse_dsh(path):
     }
 
 
+def parse_openrouter(path):
+    """The runner in openrouter/ writes this shape.
+
+    OpenRouter reports prompt_tokens inclusive of cached_tokens, and
+    completion_tokens inclusive of reasoning_tokens, matching how the hangar
+    table defines its Input and Output columns.
+    """
+    started = finished = first_output = None
+    totals = {"input": 0, "cached": 0, "output": 0}
+    reasoning = None
+    calls = errors = 0
+    ttft = None
+    for event in read_jsonl(path):
+        kind = event.get("type")
+        stamp = ts(event.get("time"))
+        if kind == "turn/start":
+            started = started or stamp
+        elif kind == "assistant/message":
+            usage = event.get("usage") or {}
+            totals["input"] += usage.get("prompt_tokens") or 0
+            totals["output"] += usage.get("completion_tokens") or 0
+            totals["cached"] += (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
+            detail = (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
+            if detail is not None:
+                reasoning = (reasoning or 0) + detail
+            if ttft is None and event.get("ttft_s") is not None:
+                ttft = event["ttft_s"]
+            first_output = first_output or stamp
+        elif kind == "tool/call":
+            calls += 1
+        elif kind == "tool/result":
+            if event.get("error"):
+                errors += 1
+        elif kind == "session/end":
+            finished = stamp
+        if stamp:
+            finished = finished or stamp
+    return {
+        "started": started,
+        "finished": finished,
+        "first_output": first_output,
+        # The runner measures TTFT directly off the stream, which beats
+        # inferring it from event timestamps.
+        "ttft_override": ttft,
+        "input": totals["input"],
+        "cached": totals["cached"],
+        "output": totals["output"],
+        "reasoning": reasoning,
+        "tool_calls": calls,
+        "tool_errors": errors,
+    }
+
+
 PARSERS = {
     "codex": parse_codex,
+    "openrouter": parse_openrouter,
     "omp": parse_omp,
     "opencode": parse_opencode,
     "dsh": parse_dsh,
@@ -315,8 +372,8 @@ def main():
     duration = raw.get("duration_override")
     if duration is None and raw["started"] and raw["finished"]:
         duration = (raw["finished"] - raw["started"]).total_seconds()
-    ttft = None
-    if raw["started"] and raw["first_output"]:
+    ttft = raw.get("ttft_override")
+    if ttft is None and raw["started"] and raw["first_output"]:
         ttft = (raw["first_output"] - raw["started"]).total_seconds()
 
     total_input = raw["input"]
