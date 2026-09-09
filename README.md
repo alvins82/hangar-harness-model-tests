@@ -16,12 +16,9 @@ Sydney on a fixed date against a fixed taste profile, verify each recommendation
 against the venue's real booking system rather than its opening hours, and output one
 self-contained HTML file.
 
-The hangar task measures whether a model can build something, and you judge it by
-opening the file. This one measures whether a model can research something without
-inventing it, which cannot be judged by looking — a fabricated recommendation renders
-exactly like a researched one. So every run is scored out of 100 against a fixed
-rubric and cross-checked against its own transcript. See
-[`restaurant-pick/README.md`](restaurant-pick/README.md).
+A fabricated recommendation renders exactly like a checked one, so every run is
+scored out of 100 against a fixed rubric and cross-checked against its own
+transcript. See [`restaurant-pick/README.md`](restaurant-pick/README.md).
 
 ## Repository layout
 
@@ -29,9 +26,9 @@ rubric and cross-checked against its own transcript. See
 - `hangar-*/` — one generated HTML output and transcript for each hangar session.
 - `artifacts/astra-hangar.png` — Astra session screenshot artifact.
 - `restaurant-pick/` — the second task: prompt, rubric, results table, and a
-  transcript-to-row metrics extractor that reproduces the hangar table's token and
-  cost columns exactly.
-- `datepick-*/` — one recommendation output and transcript for each restaurant-pick
+  transcript-to-row metrics extractor that reproduces the hangar table's token,
+  reasoning and cost columns.
+- `rpick-*/` — one recommendation output and transcript for each restaurant-pick
   session.
 
 Transcripts are retained as JSONL where the source format is JSONL. OpenCode transcripts are sanitized JSON exports.

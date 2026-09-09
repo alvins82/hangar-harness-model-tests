@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 """Read one run directory's transcript and print the metrics that fill a results row.
 
-Handles the four transcript shapes already in this repository:
+Handles the four transcript shapes in this repository:
 
   codex     event_msg/token_count -> payload.info.total_token_usage   (JSONL)
   omp       message.message.usage, summed over messages               (JSONL)
-  opencode  info.tokens + info.cost                                   (JSON)
+  opencode  info.tokens + info.time                                   (JSON)
   dsh       assistant/message.data.usage, summed over messages        (JSONL)
 
-Costs are OpenRouter-equivalent USD, using the same rates and the same
-three-part split as the note on index.html: uncached input at the prompt
-rate, cached input at the cache-read rate, and output (reasoning included)
-at the completion rate.
+Costs are OpenRouter-equivalent USD using the same rates and the same three-part
+split as the note on the root index.html: uncached input at the prompt rate,
+cached input at the cache-read rate, output (reasoning included) at the
+completion rate.
+
+Token and cost figures are pinned against the published hangar rows by
+test_extract_metrics.py. Duration, TTFT and the tool counts are transcript-derived
+to one stated definition per harness -- see README.md for what each means and
+where it departs from the hangar table.
 
 Usage:
-    ./extract_metrics.py <run-dir> [--model glm|qwen|luna|sol|astra] [--row]
+    ./extract_metrics.py <run-dir> --model glm|qwen|luna|sol|astra [--row]
 
---row prints the <tr> to paste into index.html instead of JSON.
+--row prints the <tr> for restaurant-pick/index.html instead of JSON.
 """
 
 import argparse
@@ -41,26 +46,6 @@ LABELS = {
     "sol": "SOL 5.6 Max",
     "astra": "Astra 6.0 Max",
 }
-
-
-ERROR_MARKERS = (
-    '"success":false',
-    '"is_error":true',
-    '"isError":true',
-    "Script failed",
-    "Script error:",
-    "command not found",
-)
-
-
-def is_tool_error(payload):
-    """Tool results carry no common error flag across harnesses, so match markers.
-
-    Definitions differ from the hand-counted Tool errors column on index.html;
-    this one is at least applied identically to every run.
-    """
-    body = json.dumps(payload)
-    return any(marker in body for marker in ERROR_MARKERS)
 
 
 def ts(value):
@@ -97,28 +82,37 @@ def find_transcript(run_dir):
 
 
 def detect(path, first):
+    """Identify the harness, or fail loudly.
+
+    Guessing wrong here means emitting a plausible row of zeros, so an
+    unrecognised transcript is an error rather than a default.
+    """
     if path.endswith(".json"):
         return "opencode"
     if first.get("type") == "session_meta":
         return "codex"
     if first.get("type") == "session" and "delegationDepth" in first:
         return "dsh"
-    return "omp"
+    if first.get("type") in ("title", "session", "metadata", "model_change"):
+        return "omp"
+    sys.exit(
+        f"cannot identify the harness from {path} (first record type "
+        f"{first.get('type')!r}); pass --format to force one of "
+        f"{', '.join(sorted(PARSERS))}"
+    )
 
 
 def parse_codex(path):
-    started = finished = first_output = None
+    started = finished = last = first_output = None
     usage = {}
     calls = errors = 0
     for event in read_jsonl(path):
         stamp = ts(event.get("timestamp"))
+        if stamp:
+            last = stamp
         payload = event.get("payload") or {}
         kind = payload.get("type")
         if event.get("type") == "event_msg":
-            if kind == "item_completed":
-                item = payload.get("item") or {}
-                if (item.get("item_type") or item.get("type")) == "McpToolCall":
-                    calls += 1
             if kind == "task_started":
                 started = started or stamp
             elif kind == "task_complete":
@@ -129,16 +123,19 @@ def parse_codex(path):
                     usage = total
                     first_output = first_output or stamp
         elif event.get("type") == "response_item":
+            # Tool calls arrive as response items. MCP calls are also announced as
+            # item_completed events with the same call_id, so counting both
+            # double-counts; response items alone match the published counts.
             if kind in ("function_call", "custom_tool_call"):
                 calls += 1
             elif kind in ("function_call_output", "custom_tool_call_output"):
-                if is_tool_error(payload):
+                if codex_output_failed(payload):
                     errors += 1
-        if stamp:
-            finished = finished or stamp
     return {
         "started": started,
-        "finished": finished,
+        # Fall back to the last event, never the first: a run killed before
+        # task_complete would otherwise report a negative duration.
+        "finished": finished or last,
         "first_output": first_output,
         "input": usage.get("input_tokens", 0),
         "cached": usage.get("cached_input_tokens", 0),
@@ -149,9 +146,20 @@ def parse_codex(path):
     }
 
 
+def codex_output_failed(payload):
+    """Codex tool output carries no error flag, so read the text it returns."""
+    for part in payload.get("output") or []:
+        if isinstance(part, dict):
+            text = part.get("text") or ""
+            if text.startswith("Script failed") or "Script error:" in text:
+                return True
+    return False
+
+
 def parse_omp(path):
     started = finished = first_output = None
-    totals = {"input": 0, "output": 0, "cacheRead": 0}
+    totals = {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    reasoning = None
     calls = errors = 0
     for event in read_jsonl(path):
         stamp = ts(event.get("timestamp"))
@@ -164,13 +172,17 @@ def parse_omp(path):
             first_output = first_output or stamp
             for key in totals:
                 totals[key] += usage.get(key) or 0
+            # Present on some models only; absent means the harness did not
+            # report it, which the table shows as a dash rather than a zero.
+            if "reasoningTokens" in usage:
+                reasoning = (reasoning or 0) + (usage["reasoningTokens"] or 0)
         for part in message.get("content") or []:
             if not isinstance(part, dict):
                 continue
             if part.get("type") in ("tool_use", "tool-call", "toolCall"):
                 calls += 1
-            if part.get("type") in ("tool_result", "tool-result", "toolResult"):
-                if part.get("is_error") or part.get("isError"):
+            elif part.get("type") in ("tool_result", "tool-result", "toolResult"):
+                if part.get("is_error") or part.get("isError") or part.get("error"):
                     errors += 1
     return {
         "started": started,
@@ -178,8 +190,9 @@ def parse_omp(path):
         "first_output": first_output,
         "input": totals["input"] + totals["cacheRead"],
         "cached": totals["cacheRead"],
+        "cache_write": totals["cacheWrite"],
         "output": totals["output"],
-        "reasoning": None,
+        "reasoning": reasoning,
         "tool_calls": calls,
         "tool_errors": errors,
     }
@@ -197,16 +210,19 @@ def parse_opencode(path):
         for part in message.get("parts") or []:
             if part.get("type") == "tool":
                 calls += 1
-                state = part.get("state") or {}
-                if state.get("status") == "error":
+                if (part.get("state") or {}).get("status") == "error":
                     errors += 1
     return {
         "started": ts(time.get("created")),
-        "finished": ts(time.get("completed") or time.get("updated")),
+        # The session carries created/updated only; updated is the end of the
+        # session and reproduces the published durations exactly.
+        "finished": ts(time.get("updated")),
         "first_output": None,
         "input": (tokens.get("input") or 0) + (cache.get("read") or 0),
         "cached": cache.get("read") or 0,
-        # OpenCode reports reasoning separately; the generated total is the sum.
+        "cache_write": cache.get("write") or 0,
+        # OpenCode reports reasoning outside its output count; the generated
+        # total published on the hangar table is the sum.
         "output": (tokens.get("output") or 0) + (tokens.get("reasoning") or 0),
         "reasoning": tokens.get("reasoning"),
         "tool_calls": calls,
@@ -215,27 +231,30 @@ def parse_opencode(path):
 
 
 def parse_dsh(path):
-    """Duration sums active turn time, so a pause between turns is excluded."""
+    """Duration sums active turn time, so a pause between turns is excluded.
+
+    TTFT is measured from the first turn/start rather than the session record,
+    which can predate the first turn by many minutes on a resumed session.
+    """
     active = 0.0
-    turn_open = None
-    started = first_output = None
+    turn_open = first_turn = first_output = None
     totals = {"input": 0, "output": 0, "cached": 0}
     calls = errors = 0
     for event in read_jsonl(path):
         kind = event.get("type")
         stamp = ts(event.get("time") or event.get("createdAt"))
         data = event.get("data") or {}
-        if stamp:
-            started = started or stamp
         if kind == "turn/start":
             turn_open = stamp
+            first_turn = first_turn or stamp
         elif kind == "turn/end" and turn_open and stamp:
             active += (stamp - turn_open).total_seconds()
             turn_open = None
         elif kind == "assistant/chunk":
             first_output = first_output or stamp
         elif kind == "assistant/message":
-            # inputTokens here is uncached only; cache reads are counted separately.
+            # inputTokens is uncached only; cache reads are a separate field.
+            # Compaction requests are excluded, matching the published rows.
             usage = data.get("usage") or {}
             totals["input"] += usage.get("inputTokens") or 0
             totals["output"] += usage.get("outputTokens") or 0
@@ -243,13 +262,13 @@ def parse_dsh(path):
         elif kind == "tool/call":
             calls += 1
         elif kind == "tool/result":
-            if is_tool_error(data):
+            if data.get("error") or data.get("isError"):
                 errors += 1
     return {
-        "started": started,
+        "started": first_turn,
         "finished": None,
-        "first_output": first_output,
         "duration_override": active or None,
+        "first_output": first_output,
         "input": totals["input"] + totals["cached"],
         "cached": totals["cached"],
         "output": totals["output"],
@@ -267,17 +286,11 @@ PARSERS = {
 }
 
 
-def guess_model(run_dir):
-    name = os.path.basename(os.path.abspath(run_dir)).lower()
-    for key in ("glm", "qwen", "luna", "sol", "astra"):
-        if key in name:
-            return key
-    return None
-
-
 def human_duration(seconds):
     if seconds is None:
         return "—"
+    if seconds < 0:
+        return f"invalid ({seconds:.3f}s)"
     minutes, rest = divmod(seconds, 60)
     return f"{int(minutes)}m {rest:06.3f}s" if minutes else f"{rest:.3f}s"
 
@@ -285,20 +298,19 @@ def human_duration(seconds):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("run_dir")
-    parser.add_argument("--model", choices=sorted(RATES))
-    parser.add_argument("--harness")
-    parser.add_argument("--file", help="output artifact to link from the File column")
+    # Required: inferring it from the directory name silently misprices
+    # hangar-codex-luna56-max, whose transcript records gpt-5.6-sol.
+    parser.add_argument("--model", choices=sorted(RATES), required=True)
+    parser.add_argument("--harness", help="label for the Harness column")
+    parser.add_argument("--format", choices=sorted(PARSERS), help="force a transcript format")
+    parser.add_argument("--file", default="recommendation.html", help="artifact to link")
     parser.add_argument("--row", action="store_true", help="print an index.html <tr>")
     args = parser.parse_args()
 
     path = find_transcript(args.run_dir)
     first = next(iter(read_jsonl(path)), {}) if path.endswith(".jsonl") else {}
-    harness = args.harness or detect(path, first)
-    raw = PARSERS[detect(path, first)](path)
-
-    model = args.model or guess_model(args.run_dir)
-    if not model:
-        sys.exit("could not infer the model from the directory name; pass --model")
+    fmt = args.format or detect(path, first)
+    raw = PARSERS[fmt](path)
 
     duration = raw.get("duration_override")
     if duration is None and raw["started"] and raw["finished"]:
@@ -308,19 +320,23 @@ def main():
         ttft = (raw["first_output"] - raw["started"]).total_seconds()
 
     total_input = raw["input"]
-    cached = raw["cached"]
+    cached = min(raw["cached"], total_input)
     uncached = max(total_input - cached, 0)
     output = raw["output"]
-    in_rate, cache_rate, out_rate = RATES[model]
+    in_rate, cache_rate, out_rate = RATES[args.model]
     input_cost = uncached * in_rate / 1e6
     cache_cost = cached * cache_rate / 1e6
     output_cost = output * out_rate / 1e6
 
+    if raw.get("cache_write"):
+        print(f"warning: {raw['cache_write']:,} cache-write tokens are not priced",
+              file=sys.stderr)
+
     row = {
-        "model": LABELS[model],
-        "harness": harness,
-        "duration_s": round(duration, 3) if duration else None,
-        "ttft_s": round(ttft, 3) if ttft else None,
+        "model": LABELS[args.model],
+        "harness": args.harness or fmt,
+        "duration_s": round(duration, 3) if duration is not None else None,
+        "ttft_s": round(ttft, 3) if ttft is not None else None,
         "input_tokens": total_input,
         "output_tokens": output,
         "reasoning_tokens": raw["reasoning"],
@@ -346,13 +362,21 @@ def main():
     def cost(value):
         return f'<td class="metric cost" data-sort="{value}">${value:.6f}</td>'
 
-    link = args.file or "recommendation.html"
+    # The results table lives in restaurant-pick/ and run directories sit at the
+    # repository root, so the link needs to climb out.
+    href = f'../{os.path.basename(os.path.abspath(args.run_dir))}/{args.file}'
+    pct = row["cached_input_pct"]
     cells = [
         f'<td class="model">{row["model"]}</td>',
         f'<td class="harness">{row["harness"]}</td>',
-        f'<td class="file"><a class="open" href="{os.path.basename(os.path.abspath(args.run_dir))}/{link}">Open</a></td>',
+        f'<td class="file"><a class="open" href="{href}">Open</a></td>',
+        # Score, Fabrications and Booking checks are hand-scored from
+        # score.json against RUBRIC.md; emitted empty for the operator to fill.
+        '<td class="metric" data-sort="">—</td>',
+        '<td class="metric" data-sort="">—</td>',
+        '<td class="status">—</td>',
         metric(row["duration_s"], human_duration(row["duration_s"])),
-        metric(row["ttft_s"], f'{row["ttft_s"]:.3f}s' if row["ttft_s"] else None),
+        metric(row["ttft_s"], f'{row["ttft_s"]:.3f}s' if row["ttft_s"] is not None else None),
         metric(row["input_tokens"]),
         metric(row["output_tokens"]),
         metric(row["reasoning_tokens"]),
@@ -361,7 +385,7 @@ def main():
         cost(row["cache_read_cost"]),
         cost(row["output_cost"]),
         cost(row["total_cost"]),
-        metric(row["cached_input_pct"], f'{row["cached_input_pct"]:.2f}%' if row["cached_input_pct"] else None),
+        metric(pct, f'{pct:.2f}%' if pct is not None else None),
         metric(row["tool_calls"]),
         metric(row["tool_errors"]),
     ]

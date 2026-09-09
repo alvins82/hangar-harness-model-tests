@@ -1,0 +1,17 @@
+{
+  "model": "Opus 5 (1M context)",
+  "harness": "Claude Code",
+  "run_date": "2026-09-09",
+  "target_date": "2026-09-26",
+  "hard_filters": 9,
+  "taste_fit": 19,
+  "verification": 23,
+  "honesty": 10,
+  "lo_prestis": 10,
+  "output": 4,
+  "total": 75,
+  "total_strict": 55,
+  "fabrications": [],
+  "booking_checks": "3/3 recommended venues verified live (4 queried); named venue attempted and honestly reported unconfirmed",
+  "notes": "NOT A BLIND RUN — this model authored PROMPT.md and RUBRIC.md, and scored itself. Treat as a rubric shakedown, not a comparable benchmark row.\n\nWhere points were lost: (1) Google review counts were never obtainable — the Maps panel exposed ratings via aria-label but no count — so the per-venue rating line item (2pts x 3) scored 0 and the output-completeness point was lost. Ratings are quoted with a named source but no URL, taking the -5 honesty deduction for a thinly-sourced rating. (2) NowBookIt was never used, and the rubric has no N/A rule, so its 2 points are unscored rather than waived. (3) Drive times are map-geography estimates, stated as estimates, not measured.\n\ntotal_strict 55 applies the section-2 zeroing rule: the starred pick, Hamsi Taverna, sits on the water at the new Sydney Fish Market with ~200 seats and harbour views, which is arguably the 'view is the point' hard avoid. The run dropped Watermans (Barangaroo) for exactly that reason and then starred a waterfront venue anyway — the most defensible criticism of this run. A strict scorer zeroes taste_fit and the total is 55.\n\nRubric defects this run exposed, all confirmed by independent review: section 1's table sums to 5 per venue (2+1+1+1) x 3 = 15, leaving 10 of its 25 points with no criteria; a compliant two-option run caps at 20/25; honesty has no floor so a total can go negative; one fabrication is punishable three times over; and score.json had no field for the Booking checks column the results table claims to read (added here as a free-text field pending a defined shape)."
+}

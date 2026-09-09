@@ -1,17 +1,28 @@
 # Restaurant Pick — the prompt
 
 Everything below the rule is the prompt. Paste it verbatim into each harness as a
-single first message, in the same `/goal` mode used for the hangar test, and change
-nothing between runs. The context pack is fixed input, so it costs every run the
-same number of input tokens.
+single first message, in the same `/goal` mode used for the hangar test.
 
-The diner is a composite persona. The taste profile is real preference data with the
-identifying details removed: no name, no street address, no contact details, no
-employer. Suburb-level geography is all the task needs.
+**Before pasting, substitute the two date placeholders** — and nothing else. The
+target date must be a **Saturday at least 14 days after the run date**, so that
+booking systems still hold real inventory for it; a date in the past makes "fully
+booked" and "the date has passed" indistinguishable and the Verification section
+unscoreable. Record both dates in `score.json`. Everything else is fixed input and
+costs every run the same number of input tokens.
+
+- `{{TARGET_DATE}}` — e.g. `Saturday 17 October 2026`
+- `{{TARGET_DATE_ISO}}` — the same date as `2026-10-17`
+- `{{TARGET_DATE_ISO_UNPADDED}}` — the same date as `2026-10-17` with months and
+  days unpadded, e.g. `2026-10-7` for the 7th. NowBookIt requires this form; the
+  difference is deliberate, not a typo.
+
+The diner is a composite persona, built to exercise the task rather than to describe
+anyone: an inner-city Sydney base, a drive radius, a budget band, and a set of
+calibration venues. It carries no name, address, contact details or employer.
 
 ---
 
-Plan dinner for two people on **Saturday 26 September 2026 at 7:00pm** in Sydney,
+Plan dinner for two people on **{{TARGET_DATE}} at 7:00pm** in Sydney,
 Australia, and write the recommendation up as one self-contained HTML file called
 `recommendation.html`.
 
@@ -23,7 +34,7 @@ The brief, in the diner's own words:
 
 ## Who you are booking for
 
-- **Starts from:** Ultimo, inner-city Sydney (postcode 2007)
+- **Starts from:** Ultimo, inner-city Sydney
 - **Transport:** drives, does not use rideshare. Maximum 30–45 minutes' drive from
   Ultimo. Parking is part of the recommendation, not an afterthought
 - **Group size:** 2
@@ -46,9 +57,12 @@ formal. Not a tasting-menu night, not a cheap night either.
 Every one of these is a place they rate. Use them to calibrate, not to copy —
 suggesting one of them back is a weak answer.
 
-Margaret, Rockpool, Nomad (Surry Hills), Baba's Place (Marrickville), New Shanghai,
-Yeodongsik, JONGRO HWARO BBQ, Chin Chin, Bistecca, Ragazzi, Alberto's Lounge,
-Westwood, Bella Brutta (Newtown), Arthur.
+Nomad (Surry Hills), Baba's Place (Marrickville), Yeodongsik, JONGRO HWARO BBQ,
+Bistecca, Ragazzi, Alberto's Lounge, Bella Brutta (Newtown), Arthur.
+
+These are reference points, not candidates and not a shortlist — they are there to
+calibrate judgement, and every one of them is independent and single-site, which is
+the standard the hard filters below hold new suggestions to.
 
 What those have in common — this is the real filter:
 
@@ -71,27 +85,27 @@ What those have in common — this is the real filter:
 
 - Google rating **4.4 or above**. Quote the rating and the review count
 - **Independent** venues only
-- **Open** on Saturday 26 September 2026 at 7:00pm. Quote the hours you found
+- **Open** on {{TARGET_DATE}} at 7:00pm. Quote the hours you found
 - Within **30–45 minutes' drive of Ultimo**. State the drive time
 
-## The part that is actually being tested
+## Confirming a table
 
 Opening hours tell you when a venue is *open*. They tell you nothing about whether
 it has a *table*. For every venue you recommend, go and check its real booking
 system, and report what you found.
 
-Known behaviour of the platforms, so you do not waste the run on it:
+What is known about the platforms, so no run burns its budget rediscovering it:
 
 - **SevenRooms** answers a plain availability request. Load a SevenRooms page first
   so the request carries cookies, then fetch from inside the page:
-  `https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=<slug>&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET`
+  `https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=<slug>&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date={{TARGET_DATE_ISO}}&num_days=1&channel=SEVENROOMS_WIDGET`
   In the JSON, `data.availability["<date>"]` holds the shifts; bookable slots are the
   entries with `type === "book"`. Wrong slugs cost nothing — they 400 or come back
   empty — so guessing a slug is a cheap way in. Verify the venue's identity and
   address on the page before you trust a slug: slugs point at the wrong suburb often
   enough to change a recommendation. Date parameters in the booking *page* URL are
   ignored and silently render today, so trust the API, not the page.
-- **NowBookIt**: `https://api.nowbookit.com/bookings/get-schedule/venue/<venueid>?date=2026-9-26&numofpeople=2`,
+- **NowBookIt**: `https://api.nowbookit.com/bookings/get-schedule/venue/<venueid>?date={{TARGET_DATE_ISO_UNPADDED}}&numofpeople=2`,
   with the date unpadded. `bookingOptionsCount` is always 0 and means nothing. A slot
   is genuinely bookable only when both `isBlockOut` and `onlySharedTablesRemain` are
   false.

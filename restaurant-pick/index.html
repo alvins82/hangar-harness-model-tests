@@ -3,9 +3,9 @@
 Benchmark context:
 Second task in this repository, same model and harness matrix as the hangar test.
 
-Where the hangar test measures whether a model can build something, this one measures
-whether it can research something without inventing it. The prompt is in PROMPT.md and
-the scoring is in RUBRIC.md; both are fixed across runs.
+Where the hangar test asks whether a model can build something, this one asks whether
+it can confirm something and stay honest about what it could not confirm. The prompt is
+in PROMPT.md and the scoring is in RUBRIC.md.
 -->
 <html lang="en">
 <head>
@@ -73,12 +73,16 @@ the scoring is in RUBRIC.md; both are fixed across runs.
       .sort-button { padding: 7px 7px; }
     }
   </style>
+  <style>
+    .src { color:#607783; font-size:.78rem; }
+    td.metric .src { font-size:.72rem; }
+  </style>
 </head>
 <body>
   <main>
     <h1>Restaurant Pick / Model Tests</h1>
-    <p class="intro">Same matrix as the <a href="../index.html">hangar test</a>, different failure mode. The hangar prompt asks a model to <em>build</em> something, and you can judge the result by opening it. This one asks a model to <em>find out</em> something, where a fabricated answer and a researched answer look identical on the page &mdash; so every run is scored against <a href="RUBRIC.md">a fixed rubric</a> and cross-checked against its own transcript.</p>
-    <p class="prompt"><strong>Prompt:</strong> Plan dinner for two in Sydney on Saturday 26 September 2026 at 7:00pm against a fixed taste profile, verify every recommendation against the venue&rsquo;s real booking system rather than its opening hours, answer a named-venue question whose booking platform blocks automated checks, and output one self-contained HTML file. Full text in <a href="PROMPT.md">PROMPT.md</a>.</p>
+    <p class="intro">Same matrix as the <a href="../index.html">hangar test</a>, different failure mode. The hangar prompt asks a model to <em>build</em> something, and you can judge the result by opening it. This one asks a model to <em>confirm</em> something, where a fabricated answer and a checked answer look identical on the page &mdash; so every run is scored against <a href="RUBRIC.md">a fixed rubric</a> and cross-checked against its own transcript.</p>
+    <p class="prompt"><strong>Prompt:</strong> Plan dinner for two in Sydney on a given Saturday against a fixed taste profile, verify every recommendation against the venue&rsquo;s real booking system rather than its opening hours, answer a named-venue question whose booking platform blocks automated checks, and output one self-contained HTML file. Full text in <a href="PROMPT.md">PROMPT.md</a>.</p>
 
     <div class="table-wrap">
       <table>
@@ -106,32 +110,35 @@ the scoring is in RUBRIC.md; both are fixed across runs.
           </tr>
         </thead>
         <tbody>
-          <!-- datepick-codex-glm53flash-max -->
+          <!-- rpick-claudecode-opus5 : baseline, NOT blind (see note) -->
+          <tr><td class="model">Opus 5 (1M context)</td><td class="harness">Claude Code</td><td class="file"><a class="open" href="../rpick-claudecode-opus5/recommendation.html">Open</a></td><td class="metric" data-sort="75">75<span class="src"> / 55 strict</span></td><td class="metric" data-sort="0">0</td><td class="status">3/3</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- rpick-codex-glm53flash-max -->
           <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-codex-luna56-max -->
+          <!-- rpick-codex-luna56-max -->
           <tr><td class="model">Luna 5.6 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-codex-sol56-max -->
+          <!-- rpick-codex-sol56-max -->
           <tr><td class="model">SOL 5.6 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-codex-astra60-max -->
+          <!-- rpick-codex-astra60-max -->
           <tr><td class="model">Astra 6.0 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-omp-glm53-flash -->
+          <!-- rpick-omp-glm53-flash -->
           <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OMP</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-omp-qwen3827b-xhigh -->
+          <!-- rpick-omp-qwen3827b-xhigh -->
           <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OMP</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-opencode-glm53-flash -->
+          <!-- rpick-opencode-glm53-flash -->
           <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OpenCode</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-opencode-qwen3827b-xhigh -->
+          <!-- rpick-opencode-qwen3827b-xhigh -->
           <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OpenCode</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-dsh-ptc-qwen3827b-xhigh -->
+          <!-- rpick-dsh-ptc-qwen3827b-xhigh -->
           <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH / PTC</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
-          <!-- datepick-dsh-qwen3827b-xhigh -->
+          <!-- rpick-dsh-qwen3827b-xhigh -->
           <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="note">Rows are seeded with the matrix and marked <code>Pending</code> until a run lands. Fill one by dropping its transcript and <code>recommendation.html</code> into the matching directory, then running <code>./extract_metrics.py &lt;run-dir&gt; --model &lt;key&gt; --harness &lt;name&gt; --row</code> and pasting the result. Score, Fabrications and Booking checks come from <code>score.json</code>, which is scored by hand against RUBRIC.md &mdash; Score is out of 100, Fabrications is the count of invented venues, ratings, links or times, and Booking checks is how many recommended venues were verified against a real booking system out of how many were recommended.</p>
-    <p class="note">Token and cost columns use the same definitions and the same OpenRouter rates as the hangar table, and <code>extract_metrics.py</code> reproduces all ten published hangar rows exactly &mdash; see <code>test_extract_metrics.py</code>. Duration, TTFT, Tool calls and Tool errors are computed from the transcript to one stated definition per harness, which can differ slightly from the hand-counted values on the hangar table; the note in the README says where.</p>
+    <p class="note">The first row is a baseline, and it is <strong>not a blind run</strong>: that model wrote the prompt and the rubric and then scored itself, so it is a shakedown of the scoring sheet rather than a comparable result. It also ran outside the four harnesses, so it has no transcript in a format the extractor reads and no token or cost figures. Its two scores are the same run marked leniently and strictly &mdash; the spread is the starred pick sitting on the water at the new Sydney Fish Market, which is arguably the &ldquo;view is the point&rdquo; hard avoid.</p>
+    <p class="note">The remaining rows are seeded with the matrix and marked <code>Pending</code>. Fill one by dropping its transcript and <code>recommendation.html</code> into the matching directory, then running <code>./extract_metrics.py &lt;run-dir&gt; --model &lt;key&gt; --harness &lt;name&gt; --row</code> and pasting the result, which arrives with the three hand-scored cells empty. Score, Fabrications and Booking checks come from <code>score.json</code>, scored by hand against RUBRIC.md &mdash; Score out of 100, Fabrications the count of invented venues, ratings, links or times, and Booking checks how many recommended venues had a booking system actually queried over how many were recommended.</p>
+    <p class="note">Token and cost columns use the same definitions and OpenRouter rates as the hangar table. <code>extract_metrics.py</code> reproduces the published hangar figures for input, output, reasoning and total tokens, cached input % and all four cost columns, on all ten rows across all four transcript formats &mdash; <code>test_extract_metrics.py</code> pins every one of those cells. Duration, TTFT, Tool calls and Tool errors are computed to one stated definition per harness and match the hand-counted hangar values on 7, 2, 8 and 6 of ten rows respectively; the README has a table of exactly where and why each differs.</p>
   </main>
 <script>
     const table = document.querySelector('table');
