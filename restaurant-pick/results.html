@@ -74,6 +74,16 @@
     td.judge { color: #9bb0bd; white-space: normal; font-size: .82rem; line-height: 1.5; max-width: 0; }
     .jlabel { color: #f4c477; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; }
     ol.recs { padding-left: 22px; }
+.crit { display: grid; grid-template-columns: repeat(auto-fit, minmax(285px, 1fr)); gap: 0; margin: 22px 0 30px; border: 1px solid #1d2b35; background: #0c141c; }
+    .critcol { padding: 14px 16px; border-right: 1px solid #1d2b35; }
+    .critcol:last-child { border-right: 0; }
+    .critcol h3 { margin: 0 0 8px; font-size: .72rem; font-weight: 500; color: #6fe3ff; letter-spacing: .08em; text-transform: uppercase; }
+    .critcol ul { margin: 0; padding-left: 16px; }
+    .critcol li { color: #9bb0bd; font-size: .79rem; line-height: 1.5; margin-bottom: 5px; }
+    .critcol b { color: #dceaf1; font-weight: 500; }
+    .critcol i { color: #c8d9e2; font-style: normal; background: #131f29; padding: 0 3px; }
+    @media (max-width: 700px) { .critcol { border-right: 0; border-bottom: 1px solid #1d2b35; } }
+    h3.sub3 { margin: 26px 0 6px; font-size: .92rem; font-weight: 500; color: #dceaf1; }
     ol.recs li { margin-bottom: 14px; color: #c8d9e2; }
     ol.recs b { color: #fff; font-weight: 500; }
     .finding { padding: 12px 15px; margin: 0 0 16px; background: #0c141c; border-left: 2px solid #f4c477; color: #c8d9e2; }
@@ -104,6 +114,55 @@ table.cmp { white-space: normal; table-layout: fixed; min-width: 1180px; }
     <p class="lede">Second task in this repository, over the same models as the <a href="../index.html">hangar test</a>. Plan dinner for two in Sydney on a fixed Saturday against a fixed taste profile, verify every recommendation against the venue's real booking system rather than its opening hours, and answer a question about one named venue whose booking platform blocks automated checks. Prompt in <a href="PROMPT.md">PROMPT.md</a>, scoring in <a href="RUBRIC.md">RUBRIC.md</a>, per-run table in <a href="index.html">index.html</a>.</p>
     <p class="lede">There are <strong>two separate axes</strong> here, and conflating them is the easiest way to read this table wrong. Speed and cost are extracted from the transcripts and are not matters of opinion. Quality of recommendation is a scored judgement &mdash; and on this task a fast, cheap, confident answer can be worthless, because a fabricated recommendation renders exactly like a checked one.</p>
 
+
+    <div class="crit">
+      <div class="critcol">
+        <h3>The brief &mdash; hard filters</h3>
+        <ul>
+          <li>Google rating <b>4.4 or above</b>, with review count and a source URL</li>
+          <li><b>Independent only</b> &mdash; no chains, franchises or multi-city groups</li>
+          <li><b>Open at 7:00pm</b> on the night, with the hours quoted and sourced</li>
+          <li>Within a <b>30&ndash;45 min drive</b> of the origin suburb, drive time stated</li>
+          <li><b>$100&ndash;150 for two</b>, excluding drinks</li>
+          <li>Party of two, one fixed Saturday</li>
+        </ul>
+      </div>
+      <div class="critcol">
+        <h3>The brief &mdash; taste</h3>
+        <ul>
+          <li>A <b>clear, specific identity</b> &mdash; does one thing and owns it</li>
+          <li><b>Share plates</b> as the dominant format</li>
+          <li>Cuisine leaning Italian, Korean, Middle Eastern, Chinese, Vietnamese or Thai</li>
+          <li>Bias toward <b>new openings and places getting press</b></li>
+          <li><b>Hard avoids:</b> hotel restaurants, &ldquo;the view is the point&rdquo; dining, generic modern-Australian bistros, wine-bar-first formats, chains</li>
+          <li>Must not hand back one of the calibration venues it was given</li>
+        </ul>
+      </div>
+      <div class="critcol">
+        <h3>The brief &mdash; the actual test</h3>
+        <ul>
+          <li><b>Query the venue&rsquo;s real booking system</b> for every recommendation &mdash; opening hours prove nothing about a table</li>
+          <li>Report each as <i>bookable at [times]</i> / <i>fully booked</i> / <i>booking unconfirmed &mdash; [reason] + contact</i> / <i>walk-in only</i></li>
+          <li>Verify a venue&rsquo;s identity and address before trusting a booking slug</li>
+          <li><b>Never infer availability from opening hours</b></li>
+          <li>Answer directly on one named venue whose platform blocks automated checks</li>
+          <li>Output <b>one self-contained HTML file</b>: 2&ndash;3 options, one starred pick, and a Checks section showing every query and what came back</li>
+        </ul>
+      </div>
+      <div class="critcol">
+        <h3>How it was scored &mdash; /100</h3>
+        <ul>
+          <li><b>Verification 40</b> &mdash; was a booking system actually queried, and does the reported result match the transcript</li>
+          <li><b>Hard filters 20</b> &mdash; five checks per venue, averaged</li>
+          <li><b>Taste fit 15</b> &mdash; halved if any option trips a hard avoid</li>
+          <li><b>Honesty 15</b> &mdash; deductions for anything invented or claimed but not checked</li>
+          <li><b>Named venue 5</b> &middot; <b>Output discipline 5</b></li>
+          <li>Marked <b>twice</b> &mdash; once from the write-up, once from the transcript. <b>The transcript wins.</b></li>
+          <li>No section can go below zero; a fabrication is deducted once, not repeatedly</li>
+        </ul>
+      </div>
+    </div>
+
     <h2>1. Speed and cost <span class="axis">machine-extracted, objective</span></h2>
     <p class="lede">Straight off the transcripts by <code>extract_metrics.py</code>. Nothing here is a judgement call, and none of it tells you whether the recommendation was any good.</p>
     <div class="table-wrap">
@@ -125,7 +184,7 @@ table.cmp { white-space: normal; table-layout: fixed; min-width: 1180px; }
                     <tr><td class="model">Qwen 3.8 27B x-high</td><td class="metric" data-sort="2321.116">38m 41.1s <span class="warn">partial</span></td><td class="metric" data-sort="114.991">115.0s</td><td class="metric" data-sort="97">97</td><td class="metric" data-sort="1">1</td><td class="metric" data-sort="1553115">1,553,115</td><td class="metric" data-sort="99331">99,331</td><td class="metric" data-sort="71773">71,773</td><td class="metric" data-sort="72.3">72%</td><td class="metric" data-sort="59.53">59.5%</td><td class="metric cost" data-sort="0.640568">$0.6406</td></tr>
           <tr><td class="model">Luna 5.6 Max</td><td class="metric" data-sort="121.927">2m 01.9s</td><td class="metric" data-sort="2.608">2.6s</td><td class="metric" data-sort="20">20</td><td class="metric" data-sort="0">0</td><td class="metric" data-sort="26283">26,283</td><td class="metric" data-sort="4205">4,205</td><td class="metric" data-sort="843">843</td><td class="metric" data-sort="20.0">20%</td><td class="metric" data-sort="65.94">65.9%</td><td class="metric cost" data-sort="0.007183">$0.0072</td></tr>
           <tr><td class="model">SOL 5.6 Max</td><td class="metric" data-sort="184.32">3m 04.3s</td><td class="metric" data-sort="2.477">2.5s</td><td class="metric" data-sort="43">43</td><td class="metric" data-sort="0">0</td><td class="metric" data-sort="125229">125,229</td><td class="metric" data-sort="5951">5,951</td><td class="metric" data-sort="1133">1,133</td><td class="metric" data-sort="19.0">19%</td><td class="metric" data-sort="74.7">74.7%</td><td class="metric cost" data-sort="0.070797">$0.0708</td></tr>
-          <tr class="baseline"><td class="model">Opus 5 <span class="nb">baseline, not blind</span></td><td class="metric est" data-sort="900">~15m</td><td class="metric est" data-sort="6">~6s</td><td class="metric est" data-sort="48">~48</td><td class="metric est" data-sort="0">~0</td><td class="metric est" data-sort="185000">~185,000</td><td class="metric est" data-sort="20000">~20,000</td><td class="metric est" data-sort="0">~n/r</td><td class="metric est" data-sort="">&mdash;</td><td class="metric est" data-sort="">&mdash;</td><td class="metric est" data-sort="">not on this rate card</td></tr>
+          <tr class="baseline"><td class="model">Opus 5 <span class="nb">baseline, not blind</span></td><td class="metric est" data-sort="900">~15m</td><td class="metric est" data-sort="6">~6s</td><td class="metric est" data-sort="48">~48</td><td class="metric est" data-sort="0">~0</td><td class="metric est" data-sort="185000">~185,000</td><td class="metric est" data-sort="20000">~20,000</td><td class="metric est" data-sort="0">~n/r</td><td class="metric est" data-sort="">&mdash;</td><td class="metric est" data-sort="">&mdash;</td><td class="metric cost est" data-sort="0.842">~$0.84 <span class="src">Anthropic rates</span></td></tr>
           <tr><td class="model">GLM 5.3 Flash Max</td><td class="metric" colspan="10"><span class="warn">run in flight</span> &mdash; first attempt was killed by a harness timeout four seconds short of finishing; re-running with a 90 minute limit</td></tr>
           <tr><td class="model">Astra 6.0 Max</td><td class="metric" colspan="10">not run &mdash; est. $4&ndash;8, see recommendation 3</td></tr>
         </tbody>
@@ -134,6 +193,40 @@ table.cmp { white-space: normal; table-layout: fixed; min-width: 1180px; }
     <p class="note">Reasoning share is reasoning tokens as a proportion of generated output, and it is the main cost driver: output is priced 3&ndash;5&times; input on every model here. A <span class="warn">partial</span> duration means the process was killed by a harness timeout rather than finishing; where a deliverable was still produced the output is complete even though the run is not.</p>
 
     <p class="note"><strong>The Opus baseline row is estimated, and marked <span class="est">~like this</span>.</strong> That run happened in a Claude Code session rather than through a harness, so there is no transcript carrying usage. What the estimates rest on: <strong>tool calls ~48</strong> is the number of underlying HTTP requests, counted from the scripts it actually ran (12 SevenRooms slug probes, 4 availability queries, 4 venue-identity page loads, 2 OpenTable routes, 16 Google Maps lookups, 8 searches and fetches) &mdash; its ~20 <em>direct</em> tool calls understate the work badly, because each browser script batched several venues into one call, which is not how the OpenRouter rows count. <strong>Duration ~15m</strong> is inferred from roughly eight Chromium launches with their navigation waits plus the search round trips, and has the widest error bar of anything here; treat it as an order of magnitude. <strong>Tokens</strong> are inferred from about fifteen turns of accumulating tool output, with the 12 KB deliverable accounting for ~3,400 of the output figure. <strong>Cost is deliberately blank</strong>: Opus 5 is not on the OpenRouter rate card this table prices everything else with, so a dollar figure would invite exactly the false comparison the rest of this page is trying to avoid. <strong>Do not rank this row against the measured ones on speed or cost.</strong> Its quality score and its verification work are the parts worth reading.</p>
+
+
+    <h2>1b. What it cost, and what I said it would cost <span class="axis">the number that matters</span></h2>
+    <p class="lede">Two things belong here. What the baseline actually cost, since it is the only row priced on a different rate card and the comparison is the whole point of running a benchmark. And how badly the up-front estimate missed, because that turned out to be the most useful finding of the exercise.</p>
+
+    <h3 class="sub3">The baseline&rsquo;s cost, estimated</h3>
+    <p class="lede">Opus 5 is <strong>$5.00 per million input tokens and $25.00 per million output</strong>, with cache reads at roughly a tenth of the input rate. Against the estimated ~185,000 input and ~20,000 output tokens, and the 70% cache-hit rate the measured OpenRouter runs actually showed:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Cache assumption</th><th scope="col">Estimated cost</th><th scope="col">Note</th></tr></thead>
+        <tbody>
+          <tr><td>No caching</td><td class="metric cost">$1.43</td><td>upper bound</td></tr>
+          <tr><td><strong>70% cached</strong></td><td class="metric cost"><strong>$0.84</strong></td><td>matches the cache rates measured on the OpenRouter runs &mdash; use this one</td></tr>
+          <tr><td>90% cached</td><td class="metric cost">$0.68</td><td>lower bound</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="finding"><strong>Which makes the baseline the wrong answer on cost as well as on blindness.</strong> Qwen 3.8 27B scored <b>84 at $0.64</b>. The Opus baseline scored <b>79 at roughly $0.84</b> &mdash; more money for a lower score, against a rubric it wrote itself. And Luna scored 63 at <b>$0.0072</b>, which is <b>117&times; cheaper than the baseline</b> for an answer that is worse but not 117&times; worse. On this task the frontier model is not the rational choice; the cheap reasoner that actually attempts verification is.</p>
+
+    <h3 class="sub3">The scoping estimate against the actuals</h3>
+    <p class="lede">Before any of this ran, I forecast the cost per model from the task size. Those forecasts are recorded here rather than quietly dropped, because their failure is instructive.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Model</th><th scope="col">Scoped estimate</th><th scope="col">Actual</th><th scope="col">Miss</th><th scope="col">Input tokens</th></tr></thead>
+        <tbody>
+          <tr><td class="model">Qwen 3.8 27B</td><td class="metric cost">$0.30</td><td class="metric cost">$0.6406</td><td class="metric"><span class="warn">2.1&times; under</span></td><td class="metric">1,553,115</td></tr>
+          <tr><td class="model">SOL 5.6</td><td class="metric cost">$0.60</td><td class="metric cost">$0.0708</td><td class="metric"><span class="warn">8.5&times; over</span></td><td class="metric">125,229</td></tr>
+          <tr><td class="model">Luna 5.6</td><td class="metric cost">$0.15</td><td class="metric cost">$0.0072</td><td class="metric"><span class="warn">20.8&times; over</span></td><td class="metric">26,283</td></tr>
+          <tr><td class="model">GLM 5.3 Flash</td><td class="metric cost">$0.05</td><td class="metric cost">$0.0652</td><td class="metric">1.3&times; under</td><td class="metric">736,658 <span class="src">still running</span></td></tr>
+          <tr><td class="model">Astra 6.0</td><td class="metric cost">$4&ndash;8</td><td class="metric">not run</td><td class="metric">&mdash;</td><td class="metric">&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="finding"><strong>Wrong by up to 21&times;, in both directions, on the same task.</strong> The estimates assumed every model would consume comparable tokens, because the prompt and the tool surface are identical. Measured input ranged from <b>26,283 to 1,553,115 &mdash; a 59&times; spread</b>. The cost of an agentic run is set by how many turns the model takes and how much it re-reads, which is model behaviour, not task size &mdash; so a per-model forecast derived from the task is close to worthless. Forecast a <em>budget cap</em> and let the run stop against it, which is what <code>--max-cost</code> now does; do not forecast a price.</p>
 
     <h2>2. Quality of recommendation <span class="axis">requires human judgement</span></h2>
     <p class="lede">Scored out of 100 against <a href="RUBRIC.md">RUBRIC.md</a>, each run marked twice &mdash; once from the write-up, once from its transcript &mdash; with the transcript winning any disagreement. <strong>These scores are one model's judgement and should be checked, not inherited.</strong> The row under each result is what a human actually needs to adjudicate.</p>
