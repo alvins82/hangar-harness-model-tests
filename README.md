@@ -18,7 +18,9 @@ self-contained HTML file.
 
 A fabricated recommendation renders exactly like a checked one, so every run is
 scored out of 100 against a fixed rubric and cross-checked against its own
-transcript. See [`restaurant-pick/README.md`](restaurant-pick/README.md).
+transcript. Results, with speed and cost separated from quality of recommendation, are in
+[`restaurant-pick/results.html`](restaurant-pick/results.html); the method is in
+[`restaurant-pick/README.md`](restaurant-pick/README.md).
 
 ## Repository layout
 
