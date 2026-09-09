@@ -4,13 +4,14 @@
   "run_date": "2026-09-09",
   "target_date": "2026-09-26",
   "hard_filters": 17,
-  "taste_fit": 14,
-  "verification": 29,
+  "taste_fit": 15,
+  "verification": 35,
   "honesty": 15,
   "named_venue": 5,
   "output": 4,
-  "total": 84,
+  "total": 91,
   "booking_checks": "4/4",
   "fabrications": [],
-  "notes": "Strongest of the OpenRouter runs. 97 tool calls, 8 SevenRooms slugs probed, and the only run of the three that ACTUALLY ATTEMPTED OpenTable (opentable.com.au/r/lopresti-s) before reporting it blocked. Distinguished SevenRooms type:'book' from type:'request' unprompted and refused to claim a 7pm table it did not have: reported Semola bookable 17:30-18:15 with the 19:00 seat waitlist-only. That honest negative is better verification behaviour than the Opus baseline produced. Quoted review counts (580, 648), proving that check is satisfiable. Phone 0403 368 781 independently verified as the real Google listing for Lo Presti's. Cut off by a 2400s harness timeout AFTER writing the deliverable, so the output is complete but the run is partial. Verification docked 8 of 40 because this run predates tool-body logging in the runner, so 'the result reported matches what the transcript received' is UNAUDITABLE rather than verified. Output docked 1: four venues offered where the prompt asks for two or three."
+  "notes": "Strongest of the OpenRouter runs. 97 tool calls, 8 SevenRooms slugs probed, and the only run of the three that ACTUALLY ATTEMPTED OpenTable (opentable.com.au/r/lopresti-s) before reporting it blocked. Distinguished SevenRooms type:'book' from type:'request' unprompted and refused to claim a 7pm table it did not have: reported Semola bookable 17:30-18:15 with the 19:00 seat waitlist-only. That honest negative is better verification behaviour than the Opus baseline produced. Quoted review counts (580, 648), proving that check is satisfiable. Phone 0403 368 781 independently verified as the real Google listing for Lo Presti's. Cut off by a 2400s harness timeout AFTER writing the deliverable, so the output is complete but the run is partial. Verification docked 8 of 40 because this run predates tool-body logging in the runner, so 'the result reported matches what the transcript received' is UNAUDITABLE rather than verified. Output docked 1: four venues offered where the prompt asks for two or three.",
+  "verification_basis": "29 of 33 applicable points, scaled to 40"
 }

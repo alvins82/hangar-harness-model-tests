@@ -216,6 +216,14 @@ def main():
     # spend more than the account holds. Stop on cost, not just on turns.
     parser.add_argument("--max-cost", type=float, default=2.00,
                         help="abort once estimated spend passes this many USD")
+    # A run that researches until it is killed produces nothing scoreable. These
+    # two nudges ask for an early draft and then for a finalisation, so partial
+    # work survives. Applied identically to every model, and recorded in the
+    # transcript so a reader can see the harness intervened.
+    parser.add_argument("--draft-after", type=int, default=6,
+                        help="ask for a first recommendation.html after this many turns (0 disables)")
+    parser.add_argument("--finalise-at", type=float, default=0.65,
+                        help="fraction of --max-cost or --max-turns at which to demand a final write")
     parser.add_argument("--dry-run", action="store_true", help="print the prompt and exit")
     args = parser.parse_args()
 
@@ -260,7 +268,33 @@ def main():
     spend = 0.0
     in_rate, cache_rate, out_rate = RATES[args.model]
 
+    drafted = finalised = False
     for turn in range(args.max_turns):
+        wrote_yet = os.path.exists(os.path.join(args.out, "recommendation.html"))
+        spent_frac = max(spend / args.max_cost if args.max_cost else 0,
+                         turn / args.max_turns if args.max_turns else 0)
+
+        if not finalised and spent_frac >= args.finalise_at and not wrote_yet:
+            messages.append({"role": "user", "content": (
+                "BUDGET NOTICE from the harness, not the diner. You are near the end of "
+                "this run's budget. Stop researching and call write_file now with "
+                "recommendation.html, using only what you have already confirmed. Mark "
+                "anything you could not verify as unconfirmed rather than dropping it or "
+                "guessing. An incomplete but honest write-up is worth far more than no "
+                "write-up at all.")})
+            log({"type": "harness/nudge", "kind": "finalise", "turn": turn,
+                 "spent_frac": round(spent_frac, 3)})
+            finalised = True
+        elif (not drafted and args.draft_after and turn >= args.draft_after
+              and not wrote_yet):
+            messages.append({"role": "user", "content": (
+                "PROGRESS NOTICE from the harness, not the diner. Write your best "
+                "recommendation.html now from what you have confirmed so far, then carry "
+                "on researching and call write_file again to improve it. Do not wait "
+                "until you are finished to produce a first version.")})
+            log({"type": "harness/nudge", "kind": "draft", "turn": turn})
+            drafted = True
+
         log({"type": "turn/start", "turn": turn})
         try:
             message, usage, ttft = stream_turn(key, MODELS[args.model], messages, log)
@@ -322,9 +356,13 @@ def main():
         log({"type": "session/complete", "reason": f"hit --max-turns {args.max_turns}"})
 
     wrote = os.path.exists(os.path.join(args.out, "recommendation.html"))
+    writes = sum(1 for m in messages if m.get("role") == "assistant"
+                 for c in (m.get("tool_calls") or [])
+                 if c["function"]["name"] == "write_file")
     log({"type": "session/end", "duration_s": round(time.time() - started, 3),
          "tool_calls": calls, "tool_errors": errors, "produced_output": wrote,
-         "spend_usd": round(spend, 6)})
+         "write_file_calls": writes, "nudged_draft": drafted,
+         "nudged_finalise": finalised, "spend_usd": round(spend, 6)})
     transcript.close()
 
     print(f"model      {MODELS[args.model]}")
@@ -332,6 +370,9 @@ def main():
     print(f"duration   {time.time() - started:.1f}s")
     print(f"tool calls {calls} ({errors} errors)")
     print(f"est. spend ${spend:.4f}")
+    print(f"revisions  {writes} write_file call(s)"
+          + (f"  [nudged: {'draft' if drafted else ''}{' + ' if drafted and finalised else ''}"
+             f"{'finalise' if finalised else ''}]" if (drafted or finalised) else ""))
     print(f"output     {'recommendation.html written' if wrote else 'NO OUTPUT PRODUCED'}")
     print(f"transcript {os.path.join(args.out, 'transcript.jsonl')}")
     return 0 if wrote else 1
