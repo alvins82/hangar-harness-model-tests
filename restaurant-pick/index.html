@@ -1,0 +1,174 @@
+<!doctype html>
+<!--
+Benchmark context:
+Second task in this repository, same model and harness matrix as the hangar test.
+
+Where the hangar test measures whether a model can build something, this one measures
+whether it can research something without inventing it. The prompt is in PROMPT.md and
+the scoring is in RUBRIC.md; both are fixed across runs.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restaurant Pick — Harness / Model Tests</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px 20px 48px;
+      background: #070b10;
+      color: #dceaf1;
+      font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    main { width: 100%; margin: 0; }
+    h1 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 500; }
+    .intro { margin: 0 0 18px; color: #9bb0bd; }
+    .prompt {
+      margin: 0 0 26px;
+      padding: 11px 14px;
+      border-left: 2px solid #6fe3ff;
+      color: #c8d9e2;
+      background: #0c141c;
+    }
+    .prompt strong { color: #6fe3ff; font-weight: 500; }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: max-content; min-width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    th, td { padding: 8px 9px; border-bottom: 1px solid #1d2b35; vertical-align: middle; }
+    th { padding: 0; color: #9bb0bd; font-size: .68rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+    .sort-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 8px 9px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      font: inherit;
+      letter-spacing: inherit;
+      text-align: left;
+      text-transform: inherit;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .sort-button:hover, .sort-button:focus-visible { color: #fff; outline: none; }
+    .sort-indicator { color: #607783; font-size: .9rem; }
+    td.model { color: #f4c477; white-space: nowrap; }
+    td.harness { color: #6fe3ff; white-space: nowrap; }
+    td.file { color: #607783; font-size: .8rem; }
+    td.metric { text-align: right; white-space: nowrap; }
+    td.cost { color: #9ee493; }
+    td.status { white-space: nowrap; }
+    a { color: inherit; text-decoration: none; }
+    a:hover, a:focus-visible { color: #fff; text-decoration: underline; outline: none; }
+    .open { color: #f4c477; white-space: nowrap; }
+    .note { margin: 20px 0 0; color: #607783; font-size: .8rem; }
+    code { color: inherit; }
+    @media (max-width: 700px) {
+      body { padding: 22px 12px 38px; }
+      th, td { padding: 7px 7px; }
+      .sort-button { padding: 7px 7px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Restaurant Pick / Model Tests</h1>
+    <p class="intro">Same matrix as the <a href="../index.html">hangar test</a>, different failure mode. The hangar prompt asks a model to <em>build</em> something, and you can judge the result by opening it. This one asks a model to <em>find out</em> something, where a fabricated answer and a researched answer look identical on the page &mdash; so every run is scored against <a href="RUBRIC.md">a fixed rubric</a> and cross-checked against its own transcript.</p>
+    <p class="prompt"><strong>Prompt:</strong> Plan dinner for two in Sydney on Saturday 26 September 2026 at 7:00pm against a fixed taste profile, verify every recommendation against the venue&rsquo;s real booking system rather than its opening hours, answer a named-venue question whose booking platform blocks automated checks, and output one self-contained HTML file. Full text in <a href="PROMPT.md">PROMPT.md</a>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="0">Model <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="1">Harness <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="2">File <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="3">Score <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="4">Fabrications <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="5">Booking checks <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="6">Duration <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="7">TTFT <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="8">Input tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="9">Output tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="10">Reasoning tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="11">Total tokens <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="12">Input cost <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="13">Cache read cost <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="14">Output cost <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="15">Total cost <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="16">Cached input % <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="17">Tool calls <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+            <th scope="col" aria-sort="none"><button class="sort-button" type="button" data-column="18">Tool errors <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- datepick-codex-glm53flash-max -->
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-codex-luna56-max -->
+          <tr><td class="model">Luna 5.6 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-codex-sol56-max -->
+          <tr><td class="model">SOL 5.6 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-codex-astra60-max -->
+          <tr><td class="model">Astra 6.0 Max</td><td class="harness">Codex</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-omp-glm53-flash -->
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OMP</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-omp-qwen3827b-xhigh -->
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OMP</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-opencode-glm53-flash -->
+          <tr><td class="model">GLM 5.3 Flash Max</td><td class="harness">OpenCode</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-opencode-qwen3827b-xhigh -->
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">OpenCode</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-dsh-ptc-qwen3827b-xhigh -->
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH / PTC</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+          <!-- datepick-dsh-qwen3827b-xhigh -->
+          <tr><td class="model">Qwen 3.8 27B x-high</td><td class="harness">DSH</td><td class="file">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="status">Pending</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric cost" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td><td class="metric" data-sort="">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">Rows are seeded with the matrix and marked <code>Pending</code> until a run lands. Fill one by dropping its transcript and <code>recommendation.html</code> into the matching directory, then running <code>./extract_metrics.py &lt;run-dir&gt; --model &lt;key&gt; --harness &lt;name&gt; --row</code> and pasting the result. Score, Fabrications and Booking checks come from <code>score.json</code>, which is scored by hand against RUBRIC.md &mdash; Score is out of 100, Fabrications is the count of invented venues, ratings, links or times, and Booking checks is how many recommended venues were verified against a real booking system out of how many were recommended.</p>
+    <p class="note">Token and cost columns use the same definitions and the same OpenRouter rates as the hangar table, and <code>extract_metrics.py</code> reproduces all ten published hangar rows exactly &mdash; see <code>test_extract_metrics.py</code>. Duration, TTFT, Tool calls and Tool errors are computed from the transcript to one stated definition per harness, which can differ slightly from the hand-counted values on the hangar table; the note in the README says where.</p>
+  </main>
+<script>
+    const table = document.querySelector('table');
+    const body = table.tBodies[0];
+    const headers = [...table.querySelectorAll('th')];
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    let activeColumn = -1;
+    let direction = 1;
+
+    function sortTable(column, header) {
+      if (activeColumn === column) direction *= -1;
+      else { activeColumn = column; direction = 1; }
+
+      [...body.rows]
+        .sort((a, b) => {
+          const leftCell = a.cells[column];
+          const rightCell = b.cells[column];
+          const leftRaw = leftCell.dataset.sort;
+          const rightRaw = rightCell.dataset.sort;
+          const leftKnown = leftRaw !== undefined && leftRaw !== '';
+          const rightKnown = rightRaw !== undefined && rightRaw !== '';
+
+          if (leftKnown !== rightKnown) return (leftKnown ? -1 : 1) * direction;
+          if (leftKnown && rightKnown) return (Number(leftRaw) - Number(rightRaw)) * direction;
+          return collator.compare(leftCell.textContent.trim(), rightCell.textContent.trim()) * direction;
+        })
+        .forEach(row => body.appendChild(row));
+
+      headers.forEach((item, index) => {
+        item.setAttribute('aria-sort', index === column ? (direction === 1 ? 'ascending' : 'descending') : 'none');
+        item.querySelector('.sort-indicator').textContent = index === column ? (direction === 1 ? '↑' : '↓') : '↕';
+      });
+    }
+
+    headers.forEach(header => {
+      header.querySelector('.sort-button').addEventListener('click', () => sortTable(Number(header.querySelector('.sort-button').dataset.column), header));
+    });
+  </script>
+</body>
+</html>
