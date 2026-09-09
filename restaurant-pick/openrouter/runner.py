@@ -269,32 +269,24 @@ def main():
     in_rate, cache_rate, out_rate = RATES[args.model]
 
     drafted = finalised = False
+    grace_turns = 0
+    GRACE_LIMIT = 2          # turns allowed past the cap purely to land a write
+    GRACE_COST_MULT = 1.25   # and never beyond this multiple of the cap
+    stop_reason = None
+
+    def deliverable():
+        return os.path.exists(os.path.join(args.out, "recommendation.html"))
+
+    def nudge(kind, text, **extra):
+        """Queue a harness instruction for the model's next turn.
+
+        Appended at the END of a loop iteration, after any tool results, because
+        a user message may not interrupt a tool_calls/tool_result pair.
+        """
+        log({"type": "harness/nudge", "kind": kind, **extra})
+        messages.append({"role": "user", "content": text})
+
     for turn in range(args.max_turns):
-        wrote_yet = os.path.exists(os.path.join(args.out, "recommendation.html"))
-        spent_frac = max(spend / args.max_cost if args.max_cost else 0,
-                         turn / args.max_turns if args.max_turns else 0)
-
-        if not finalised and spent_frac >= args.finalise_at and not wrote_yet:
-            messages.append({"role": "user", "content": (
-                "BUDGET NOTICE from the harness, not the diner. You are near the end of "
-                "this run's budget. Stop researching and call write_file now with "
-                "recommendation.html, using only what you have already confirmed. Mark "
-                "anything you could not verify as unconfirmed rather than dropping it or "
-                "guessing. An incomplete but honest write-up is worth far more than no "
-                "write-up at all.")})
-            log({"type": "harness/nudge", "kind": "finalise", "turn": turn,
-                 "spent_frac": round(spent_frac, 3)})
-            finalised = True
-        elif (not drafted and args.draft_after and turn >= args.draft_after
-              and not wrote_yet):
-            messages.append({"role": "user", "content": (
-                "PROGRESS NOTICE from the harness, not the diner. Write your best "
-                "recommendation.html now from what you have confirmed so far, then carry "
-                "on researching and call write_file again to improve it. Do not wait "
-                "until you are finished to produce a first version.")})
-            log({"type": "harness/nudge", "kind": "draft", "turn": turn})
-            drafted = True
-
         log({"type": "turn/start", "turn": turn})
         try:
             message, usage, ttft = stream_turn(key, MODELS[args.model], messages, log)
@@ -302,6 +294,7 @@ def main():
             detail = exc.read().decode("utf-8", "replace")[:400]
             log({"type": "error", "http": exc.code, "detail": detail})
             print(f"HTTP {exc.code}: {detail}", file=sys.stderr)
+            stop_reason = f"HTTP {exc.code}"
             break
         messages.append(message)
 
@@ -312,32 +305,20 @@ def main():
                       + (usage.get("completion_tokens") or 0) * out_rate) / 1e6
         log({"type": "turn/end", "turn": turn, "spend_usd": round(spend, 6)})
 
-        if spend >= args.max_cost:
-            log({"type": "session/complete", "reason": "hit --max-cost",
-                 "spend_usd": round(spend, 6), "max_cost": args.max_cost})
-            print(f"stopped: estimated spend ${spend:.4f} passed --max-cost "
-                  f"${args.max_cost:.2f}", file=sys.stderr)
-            break
-
-        if not message.get("tool_calls"):
-            log({"type": "session/complete", "reason": "no more tool calls"})
-            break
-
-        for call in message["tool_calls"]:
+        # Execute this turn's tools first, so the message history stays valid.
+        for call in message.get("tool_calls") or []:
             name = call["function"]["name"]
+            calls += 1
             try:
                 tool_args = json.loads(call["function"]["arguments"] or "{}")
             except json.JSONDecodeError as exc:
-                tool_args, result = {}, {"error": f"unparseable arguments: {exc}"}
                 errors += 1
-                calls += 1
-                log({"type": "tool/call", "name": name, "args_raw": call["function"]["arguments"][:400]})
-                log({"type": "tool/result", "name": name, "error": result["error"]})
+                log({"type": "tool/call", "name": name,
+                     "args_raw": call["function"]["arguments"][:400]})
+                log({"type": "tool/result", "name": name, "error": f"unparseable arguments: {exc}"})
                 messages.append({"role": "tool", "tool_call_id": call["id"],
-                                 "content": json.dumps(result)})
+                                 "content": json.dumps({"error": f"unparseable arguments: {exc}"})})
                 continue
-
-            calls += 1
             log({"type": "tool/call", "name": name,
                  "args": {k: str(v)[:300] for k, v in tool_args.items()}})
             result = call_tool(name, tool_args, args.tools_port, args.out)
@@ -345,15 +326,61 @@ def main():
                 errors += 1
             body = json.dumps(result)
             log({"type": "tool/result", "name": name, "bytes": len(body),
-                 # The body is recorded, not just its size: scoring has to be
-                 # able to trace a quoted rating or phone number to a source.
-                 # Capped so a large page cannot bloat the transcript.
-                 "result": body[:20000],
-                 "result_truncated": len(body) > 20000,
+                 "result": body[:20000], "result_truncated": len(body) > 20000,
                  **({"error": result["error"]} if isinstance(result, dict) and result.get("error") else {})})
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": body})
+
+        if not message.get("tool_calls"):
+            stop_reason = "no more tool calls"
+            break
+
+        # Budget decisions come last, once spend for this turn is known and the
+        # history is closed, so a queued nudge is guaranteed a turn to act on.
+        if spend >= args.max_cost:
+            if deliverable() or grace_turns >= GRACE_LIMIT or spend >= args.max_cost * GRACE_COST_MULT:
+                stop_reason = "hit --max-cost"
+                log({"type": "session/complete", "reason": stop_reason,
+                     "spend_usd": round(spend, 6), "max_cost": args.max_cost,
+                     "grace_turns_used": grace_turns, "produced_output": deliverable()})
+                print(f"stopped: estimated spend ${spend:.4f} passed --max-cost "
+                      f"${args.max_cost:.2f}"
+                      + ("" if deliverable() else " with no deliverable"), file=sys.stderr)
+                break
+            grace_turns += 1
+            nudge("grace",
+                  "BUDGET EXHAUSTED. This is your last chance to produce output. Call "
+                  "write_file with recommendation.html immediately, using only what you "
+                  "have already confirmed and marking the rest unconfirmed. Do not call "
+                  "any other tool.",
+                  turn=turn, grace_turn=grace_turns, spend_usd=round(spend, 6))
+            continue
+
+        spent_frac = max(spend / args.max_cost if args.max_cost else 0,
+                         (turn + 1) / args.max_turns if args.max_turns else 0)
+
+        if not finalised and spent_frac >= args.finalise_at and not deliverable():
+            finalised = True
+            nudge("finalise",
+                  "BUDGET NOTICE from the harness, not the diner. You are near the end "
+                  "of this run's budget. Stop researching and call write_file now with "
+                  "recommendation.html, using only what you have already confirmed. Mark "
+                  "anything you could not verify as unconfirmed rather than dropping it "
+                  "or guessing. An incomplete but honest write-up is worth far more than "
+                  "no write-up at all.",
+                  turn=turn, spent_frac=round(spent_frac, 3))
+        elif not drafted and args.draft_after and (turn + 1) >= args.draft_after and not deliverable():
+            drafted = True
+            nudge("draft",
+                  "PROGRESS NOTICE from the harness, not the diner. Write your best "
+                  "recommendation.html now from what you have confirmed so far, then "
+                  "carry on researching and call write_file again to improve it. Do not "
+                  "wait until you are finished to produce a first version.",
+                  turn=turn)
     else:
-        log({"type": "session/complete", "reason": f"hit --max-turns {args.max_turns}"})
+        stop_reason = f"hit --max-turns {args.max_turns}"
+
+    if stop_reason and stop_reason != "hit --max-cost":
+        log({"type": "session/complete", "reason": stop_reason})
 
     wrote = os.path.exists(os.path.join(args.out, "recommendation.html"))
     writes = sum(1 for m in messages if m.get("role") == "assistant"
