@@ -1,0 +1,58 @@
+{"type": "session", "model": "openai/gpt-5.6-luna", "model_key": "luna", "target_date": "2026-09-26", "run_date": "2026-09-09", "prompt_chars": 5979, "tools": ["fetch_url", "maps_lookup", "search_timeout", "write_file"], "time": "2026-09-09T04:45:48.537260+00:00"}
+{"type": "turn/start", "turn": 0, "time": "2026-09-09T04:45:48.537701+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 1693, "completion_tokens": 212, "total_tokens": 1905, "cost": 0.0006775, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 1690, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.0006775, "upstream_inference_prompt_cost": 0.0004231, "upstream_inference_completions_cost": 0.0002544}, "completion_tokens_details": {"reasoning_tokens": 55, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 2.6082589626312256, "content_chars": 0, "tool_calls": ["search_timeout", "search_timeout", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup"], "time": "2026-09-09T04:45:52.684380+00:00"}
+{"type": "turn/end", "turn": 0, "spend_usd": 0.000593, "time": "2026-09-09T04:45:52.684587+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "site:timeout.com/sydney/restaurants Lo Presti's Redfern"}, "time": "2026-09-09T04:45:52.684644+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 909, "time": "2026-09-09T04:45:55.725204+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "site:timeout.com/sydney/restaurants Sydney share plates Korean Italian new opening"}, "time": "2026-09-09T04:45:55.725292+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 1041, "time": "2026-09-09T04:45:58.342195+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lo Presti's Redfern Sydney"}, "time": "2026-09-09T04:45:58.342267+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 919, "time": "2026-09-09T04:46:04.190528+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Pellegrino 2000 Surry Hills Sydney"}, "time": "2026-09-09T04:46:04.190638+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 661, "time": "2026-09-09T04:46:10.065020+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Kiln Sydney Surry Hills"}, "time": "2026-09-09T04:46:10.065124+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 937, "time": "2026-09-09T04:46:15.916651+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "King Clarence Sydney restaurant"}, "time": "2026-09-09T04:46:15.916850+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 938, "time": "2026-09-09T04:46:21.686833+00:00"}
+{"type": "turn/start", "turn": 1, "time": "2026-09-09T04:46:21.686952+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 3895, "completion_tokens": 499, "total_tokens": 4394, "cost": 0.0011837, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 1690, "cache_write_tokens": 2202, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.0011837, "upstream_inference_prompt_cost": 0.0005849, "upstream_inference_completions_cost": 0.0005988}, "completion_tokens_details": {"reasoning_tokens": 300, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 8.122875928878784, "content_chars": 0, "tool_calls": ["maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "search_timeout", "search_timeout"], "time": "2026-09-09T04:46:30.186338+00:00"}
+{"type": "turn/end", "turn": 1, "spend_usd": 0.001667, "time": "2026-09-09T04:46:30.186947+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lo Presti's Restaurant Redfern Saturday hours Google rating reviews"}, "time": "2026-09-09T04:46:30.186994+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 715, "time": "2026-09-09T04:46:36.048062+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Pellegrino 2000 Surry Hills Saturday hours Google rating reviews"}, "time": "2026-09-09T04:46:36.048186+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 825, "time": "2026-09-09T04:46:41.811705+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Porcine Surry Hills Saturday hours Google rating reviews"}, "time": "2026-09-09T04:46:41.811865+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 835, "time": "2026-09-09T04:46:47.682073+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Banh Cuon Ba Oanh Marrickville Saturday hours Google rating reviews"}, "time": "2026-09-09T04:46:47.683492+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 765, "time": "2026-09-09T04:46:53.602497+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Surry Hills Italian restaurant independent share plates Saturday SevenRooms"}, "time": "2026-09-09T04:46:53.602947+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 830, "time": "2026-09-09T04:46:59.512413+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Pellegrino 2000 booking Saturday Sydney address hours"}, "time": "2026-09-09T04:46:59.512531+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 2, "time": "2026-09-09T04:47:02.591504+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Lo Presti's Restaurant Redfern hours menu OpenTable"}, "time": "2026-09-09T04:47:02.591622+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 2, "time": "2026-09-09T04:47:05.231189+00:00"}
+{"type": "turn/start", "turn": 2, "time": "2026-09-09T04:47:05.231333+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 5508, "completion_tokens": 460, "total_tokens": 5968, "cost": 0.00103369, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 3892, "cache_write_tokens": 1613, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.00103369, "upstream_inference_prompt_cost": 0.00048169, "upstream_inference_completions_cost": 0.000552}, "completion_tokens_details": {"reasoning_tokens": 129, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 5.414696931838989, "content_chars": 0, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:47:10.717759+00:00"}
+{"type": "turn/end", "turn": 2, "spend_usd": 0.00262, "time": "2026-09-09T04:47:10.718094+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/explore/pellegrino2000", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:10.718150+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 195, "time": "2026-09-09T04:47:12.306943+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/explore/porcine", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:12.306990+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 195, "time": "2026-09-09T04:47:13.223260+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/explore/barconte", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:13.223300+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 195, "time": "2026-09-09T04:47:14.129619+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/explore/loprestisrestaurant", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:14.129669+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 195, "time": "2026-09-09T04:47:15.087046+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=pellegrino2000&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:15.087097+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:47:15.759757+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=porcine&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET", "method": "GET", "body": ""}, "time": "2026-09-09T04:47:15.759849+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:47:16.354120+00:00"}
+{"type": "turn/start", "turn": 3, "time": "2026-09-09T04:47:16.354206+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 6246, "completion_tokens": 3030, "total_tokens": 9276, "cost": 0.0039312, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 5505, "cache_write_tokens": 738, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.0039312, "upstream_inference_prompt_cost": 0.0002952, "upstream_inference_completions_cost": 0.003636}, "completion_tokens_details": {"reasoning_tokens": 359, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 3.57208514213562, "content_chars": 0, "tool_calls": ["write_file"], "time": "2026-09-09T04:47:49.291168+00:00"}
+{"type": "turn/end", "turn": 3, "spend_usd": 0.006514, "time": "2026-09-09T04:47:49.291675+00:00"}
+{"type": "tool/call", "name": "write_file", "args": {"filename": "recommendation.html", "content": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>Sydney dinner \u2014 Saturday 26 September 2026</title>\n<style>\n:root{--ink:#25231f;--muted:#6e685f;--paper:#f7f3ec;--card:#fffdf9;--accent:#9b3e2e;--line:#ddd4c8}*{bo"}, "time": "2026-09-09T04:47:49.291860+00:00"}
+{"type": "tool/result", "name": "write_file", "bytes": 49, "time": "2026-09-09T04:47:49.292766+00:00"}
+{"type": "turn/start", "turn": 4, "time": "2026-09-09T04:47:49.292802+00:00"}
+{"type": "assistant/message", "finish_reason": "stop", "usage": {"prompt_tokens": 8941, "completion_tokens": 4, "total_tokens": 8945, "cost": 0.00080401, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 6243, "cache_write_tokens": 2695, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.00080401, "upstream_inference_prompt_cost": 0.00079921, "upstream_inference_completions_cost": 4.8e-06}, "completion_tokens_details": {"reasoning_tokens": 0, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": null, "content_chars": 0, "tool_calls": [], "time": "2026-09-09T04:47:50.464770+00:00"}
+{"type": "turn/end", "turn": 4, "spend_usd": 0.007183, "time": "2026-09-09T04:47:50.464847+00:00"}
+{"type": "session/complete", "reason": "no more tool calls", "time": "2026-09-09T04:47:50.464861+00:00"}
+{"type": "session/end", "duration_s": 121.927, "tool_calls": 20, "tool_errors": 0, "produced_output": true, "spend_usd": 0.007183, "time": "2026-09-09T04:47:50.464910+00:00"}

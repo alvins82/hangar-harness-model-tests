@@ -293,9 +293,12 @@ def parse_openrouter(path):
     reasoning = None
     calls = errors = 0
     ttft = None
+    truncated = True
     for event in read_jsonl(path):
         kind = event.get("type")
         stamp = ts(event.get("time"))
+        if kind in ("session/end", "session/complete"):
+            truncated = False
         if kind == "turn/start":
             started = started or stamp
         elif kind == "assistant/message":
@@ -314,10 +317,10 @@ def parse_openrouter(path):
         elif kind == "tool/result":
             if event.get("error"):
                 errors += 1
-        elif kind == "session/end":
-            finished = stamp
         if stamp:
-            finished = finished or stamp
+            # Last event wins. Pinning this to the first timestamp yields a
+            # duration of zero, or a negative one on a truncated run.
+            finished = stamp
     return {
         "started": started,
         "finished": finished,
@@ -331,6 +334,9 @@ def parse_openrouter(path):
         "reasoning": reasoning,
         "tool_calls": calls,
         "tool_errors": errors,
+        # No terminal event means the process was killed rather than finishing,
+        # so the row describes a partial run.
+        "truncated": truncated,
     }
 
 
@@ -406,6 +412,11 @@ def main():
         "tool_calls": raw["tool_calls"],
         "tool_errors": raw["tool_errors"],
     }
+    if raw.get("truncated"):
+        row["truncated"] = True
+        print("warning: no terminal event in the transcript -- this run was "
+              "killed rather than finishing, so the row is partial",
+              file=sys.stderr)
 
     if not args.row:
         print(json.dumps(row, indent=2))

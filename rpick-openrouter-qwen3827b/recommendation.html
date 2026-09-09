@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinner, Sat 26 Sep 2026, 7pm — two, from Ultimo</title>
+<style>
+  :root{
+    --bg:#101114; --panel:#17181c; --panel2:#1d1e23;
+    --ink:#eceae4; --muted:#9a978d; --line:#2a2b31;
+    --accent:#c9a227; --ok:#5aa77a; --warn:#d1883f; --bad:#c05858;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:940px;margin:0 auto;padding:48px 26px 80px}
+  h1{font-family:var(--serif);font-weight:600;font-size:33px;line-height:1.2;margin:0 0 8px}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 26px}
+  .summary{background:linear-gradient(180deg,#1b1c22,#15161a);border:1px solid var(--line);
+           border-left:4px solid var(--accent);border-radius:10px;padding:18px 20px;
+           font-family:var(--serif);font-size:18.5px;line-height:1.5;margin:0 0 34px}
+  h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:42px 0 14px;
+     padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h2 .num{color:var(--accent);margin-right:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+        padding:22px 24px;margin:0 0 18px}
+  .card .name{font-family:var(--serif);font-size:22px;margin:0 0 2px}
+  .card .place{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .star{color:var(--accent);font-size:16px}
+  .grid{display:grid;grid-template-columns:148px 1fr;gap:9px 18px;margin:0}
+  .grid dt{color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+           padding-top:2px}
+  .grid dd{margin:0;font-size:14.5px}
+  .grid dd a{color:#b9c4d6;text-decoration:none;border-bottom:1px dotted #4a5566}
+  .grid dd a:hover{color:#fff}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.03em;text-transform:uppercase;
+       padding:2px 9px;border-radius:20px;border:1px solid var(--line);margin:0 6px 6px 0}
+  .tag.ok{color:var(--ok);border-color:#2f5a43}
+  .tag.warn{color:var(--warn);border-color:#6b4a25}
+  .why{margin:14px 0 0;padding:12px 14px;background:var(--panel2);border-left:3px solid var(--accent);
+       border-radius:6px;font-family:var(--serif);font-size:15px;line-height:1.55}
+  .status{margin:14px 0 0;padding:11px 14px;border-radius:6px;font-size:14px;border:1px solid;line-height:1.5}
+  .status.ok{background:#12201a;border-color:#2f5a43;color:#cfe8d8}
+  .status.warn{background:#241a0f;border-color:#6b4a25;color:#f0d5b0}
+  .status.bad{background:#221111;border-color:#6a3434;color:#f0c4c4}
+  .status .lbl{font-weight:700;letter-spacing:.02em}
+  .status code{background:rgba(0,0,0,.35);padding:1px 6px;border-radius:4px;font-size:12px}
+  table.checks{width:100%;border-collapse:collapse;margin:8px 0 0;font-size:13px}
+  table.checks th,table.checks td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);
+       vertical-align:top}
+  table.checks th{color:var(--muted);font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+       background:var(--panel2)}
+  table.checks code{background:#0d0e11;border:1px solid var(--line);padding:1px 6px;border-radius:4px;
+       font-size:11.5px;color:#c9d1dc;word-break:break-all}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;
+        border:1px solid var(--line);margin:0 5px 4px 0;white-space:nowrap}
+  .pill.ok{color:var(--ok);border-color:#2f5a43}
+  .pill.bad{color:var(--bad);border-color:#6a3434}
+  .pill.warn{color:var(--warn);border-color:#6b4a25}
+  .lo-answer{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+  .lo-answer p{margin:0 0 12px;font-size:15px}
+  .lo-answer p:last-child{margin-bottom:0}
+  .lo-answer .q{font-family:var(--serif);font-size:16px;color:var(--muted);font-style:italic}
+  .pick{background:linear-gradient(180deg,#1c1710,#15130f);border:1px solid #4a3a15;
+        border-radius:12px;padding:20px 24px}
+  .pick .t{font-family:var(--serif);font-size:20px;color:var(--accent);margin:0 0 6px}
+  .pick p{margin:0;font-size:15px}
+  ul.mini{margin:8px 0 0;padding-left:18px}
+  ul.mini li{margin:4px 0;font-size:13.5px;color:var(--muted)}
+  ul.mini li a{color:#9fb0c6}
+  .foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+        color:var(--muted);font-size:12.5px;line-height:1.6}
+  .note{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Saturday night, two, 7pm — from Ultimo</h1>
+<p class="sub">Prepared for Sat 26 Sep 2026 · party of 2 · dinner, share plates · $100–$150 for two excl. drinks · max 30–45 min drive · independent venues only</p>
+
+<div class="summary">
+Lo Presti's is the meal you named and it <strong>is open</strong> at 7pm (Sat 12:00–11:30) — but it books through OpenTable, which blocked the automated check, so that table is <em>unconfirmed (ring 0403 368 781)</em>. The only table I could confirm on a <em>live</em> booking system for that Saturday is <strong>Semola (Marrickville)</strong>, and its 7:00pm seat is <strong>waitlist-only</strong> — the confirmed bookable dinner window is <strong>5:30–6:15pm</strong>. Closest thing to Lo Presti's in spirit: <strong>Lil' Miss Piggy (Surry Hills)</strong>.
+</div>
+
+<h2><span class="num">1</span>Options for Saturday 26 September, 7pm</h2>
+
+<!-- ============ LO PRESTI'S ============ -->
+<div class="card">
+  <div class="name">Lo Presti's Restaurant <span class="star">★</span></div>
+  <p class="place">Redfern NSW 2016 — the one you specifically asked about</p>
+  <dl class="grid">
+    <dt>Address</dt><dd>Level 1, 34B Redfern St (entrance up a stairway on Elizabeth St), Redfern</dd>
+    <dt>Cuisine &amp; format</dt><dd><span class="tag">Modern Italian</span><span class="tag ok">Share plates</span> A whole page of made-to-order antipasti you pile into the middle of the table — tuna toast, roasted peppers, grilled octopus, vine-leaf-wrapped ling, hanger steak, kangaroo tail, pork chop — with house focaccia. Communal, specific, not a tasting menu. Exactly the format you live in.</dd>
+    <dt>Google rating</dt><dd><strong>5.0★</strong> — <a href="https://www.google.com/maps/place/Lo+Presti%27s+Restaurant/+" target="_blank" rel="noopener">Google Maps place page</a>. <em>Review count not retrievable from the surfaces available in this run (lookup returns null; mirror pages 404/503) — so treat 5.0 as "loved by the people who rate it", likely a smaller sample, not crowd-verified at scale.</em></dd>
+    <dt>Sat 26 Sep hours</dt><dd><strong>12:00pm – 11:30pm</strong>, kitchen to close — 7:00pm sits mid-dinner-service. Source: <a href="https://loprestisrestaurant.com" target="_blank" rel="noopener">loprestisrestaurant.com</a> ("Saturday 12:00 – 11:30").</dd>
+    <dt>Drive from Ultimo</dt><dd><strong>~10–15 min</strong> (Ultimo → Inner West Tunnel → Marrickville Rd → Elizabeth St). Well inside the cap.</dd>
+    <dt>Parking</dt><dd>Redfern has limited metered on-street parking (Elizabeth St, Redfern St) plus paid parks a short walk (Redfern Stn car park). Inner Redfern fills after 6:30 — aim for 6:30–6:45 for the easiest spot. No valet.</dd>
+    <dt>Price for two</dt><dd><strong>~$120–$150</strong> excl. drinks — a few antipasti, two mains, bread &amp; drinks; at the top of your band, which is the "nice" part.</dd>
+    <dt>Why it fits you</dt></dd>
+    <div class="why">It's the place you've already flagged as a want, it's open at 7pm, it's a 12-minute drive, and it's the exact format you described — share plates, one specific Italian identity, lived-in, independent, single-site, in your listed Redfern/inner-west area.</div>
+    <div class="status bad">
+      <span class="lbl">Booking status — unconfirmed.</span>
+      Lo Presti's books through <strong>OpenTable</strong>, which blocked every automated route (see Checks §5). No availability data could be retrieved, so I'm not claiming a table. <strong>Close it yourself:</strong> call <a href="tel:0403368781"><strong>0403 368 781</strong></a> or use the <a href="https://loprestisrestaurant.com" target="_blank" rel="noopener">"Book a Table"</a> button on the site.
+    </div>
+  </dl>
+</div>
+
+<!-- ============ SEMOLA ============ -->
+<div class="card">
+  <div class="name">Semola <span class="star">★</span></div>
+  <p class="place">Marrickville NSW 2204 — the only table confirmed on a live booking system</p>
+  <dl class="grid">
+    <dt>Address</dt><dd>212 Marrickville Rd, Marrickville</dd>
+    <dt>Cuisine &amp; format</dt><dd><span class="tag">Southern Italian / pasta house</span><span class="tag ok">Family-style, share</span> Hand-made pasta, salumi boards, burrata, tiramisu — the whole room orders around a table. Polished, chef-led (Chef Nello), not fussy. Sits right next to your Baba's Place / Ragazzi calibration.</dd>
+    <dt>Google rating</dt><dd><strong>4.7★ · 648 Google reviews</strong> — count via <a href="https://restaurantguru.com/Semola-Marrickville" target="_blank" rel="noopener">Restaurant Guru</a> ("Google (4.7/5) 648"); rating cross-checked on <a href="https://www.google.com/maps/place/Semola+Sydney/+" target="_blank" rel="noopener">Google Maps</a>. Meets the ≥4.4 bar.</dd>
+    <dt>Sat 26 Sep hours</dt><dd><strong>12:00–3:00pm and 5:30pm–10:00pm.</strong> 7:00pm is inside the dinner window. Source: <a href="https://semola.com.au/contact" target="_blank" rel="noopener">semola.com.au/contact</a> ("Friday &amp; Saturday 12:00PM – 3:00PM, 5:30PM – 10:00PM").</dd>
+    <dt>Drive from Ultimo</dt><dd><strong>~12–18 min</strong> (Ultimo → M5 or Inner West Tunnel → Marrickville Rd). Inside the cap.</dd>
+    <dt>Parking</dt><dd>On-street paid parking on Marrickville Rd and side streets (Hawthorn, Centennial); the street in front fills fast after 6:30. No valet; a paid park is a short walk if it's full.</dd>
+    <dt>Price for two</dt><dd><strong>~$100–$140</strong> excl. drinks — a shared starter, two pastas, tiramisu, wine. Mid-band (reviews cite ~$40–60pp).</dd>
+    <dt>Why it fits you</dt></dd>
+    <div class="why">It's the strongest <em>verified</em> table for that Saturday: an independent, single-site, chef-led Italian with a live SevenRooms calendar I actually checked. The catch is the <em>time</em> — see booking status. If you can pull the dinner in to ~6pm, this is the one with a confirmed seat.</div>
+    <div class="status warn">
+      <span class="lbl">Booking status — bookable at 17:30–18:15; the 7:00pm seat is waitlist-only.</span>
+      Live SevenRooms calendar for Sat 26 Sep 2026 (slug <code>semolasydney</code>, party of 2) shows the <em>Dinner Fr-Sa</em> shift with <code>type:"book"</code> slots at <strong>17:30, 17:45, 18:00, 18:15</strong> and <code>type:"request"</code> (waitlist, not bookable) at <strong>18:45, 19:00, 19:15</strong>. So <strong>7:00pm sharp is not a bookable table</strong> — it's a waitlist request. <strong>Book it:</strong> call <a href="tel:0412277831"><strong>0412 277 831</strong></a> or the SevenRooms widget on <a href="https://semola.com.au" target="_blank" rel="noopener">semola.com.au</a> — for a confirmed seat, take 5:30–6:15pm, or join the 7pm waitlist.
+    </div>
+  </dl>
+</div>
+
+<!-- ============ LIL MISS PIGGY ============ -->
+<div class="card">
+  <div class="name">Lil' Miss Piggy</div>
+  <p class="place">Surry Hills NSW 2010 — the closest thing to Lo Presti's in spirit</p>
+  <dl class="grid">
+    <dt>Address</dt><dd>2/265 Crown St, Surry Hills</dd>
+    <dt>Cuisine &amp; format</dt><dd><span class="tag">Middle Eastern / Levantine</span><span class="tag ok">Mezze / share plates</span> Halloumi, kibbe, babaganoush, mixed grill, fattoush, knafeh — the whole point is piling small plates into the middle of a table in a courtyard. This is the same "order a pile of small things to share, no set menu, confident small room" energy Lo Presti's does in Italian, done in Levantine. Your list already leans Middle Eastern, so the format is familiar.</dd>
+    <dt>Google rating</dt><dd><strong>4.8★ · 580 Google reviews</strong> — count via <a href="https://restaurantguru.com/Lil-miss-piggy-Surry-Hills" target="_blank" rel="noopener">Restaurant Guru</a> ("Google (4.8/5) 580"); rating cross-checked on <a href="https://www.google.com/maps/place/Lil%27+miss+piggy/+" target="_blank" rel="noopener">Google Maps</a>. Meets the bar.</dd>
+    <dt>Sat 26 Sep hours</dt><dd><strong>Not confirmable from a citable source.</strong> Google's hours panel exposes only <em>Wednesday 5:00–10:00pm</em> (<a href="https://www.google.com/maps/place/Lil%27+miss+piggy/+" target="_blank" rel="noopener">Google Maps</a>); the Wix site has no working hours page. The 5–10pm pattern is consistent with a Saturday 7pm service, but I will not claim it as verified — <strong>call before you rely on the night.</strong></dd>
+    <dt>Drive from Ultimo</dt><dd><strong>~8–12 min</strong> (Ultimo → Crown St). Inside the cap.</dd>
+    <dt>Parking</dt><dd>On-street paid parking on Crown St and nearby (Cunningham, Bland). Surry Hills Saturday night is busy and the courtyard fills early; parking tightens after 7. No valet.</dd>
+    <dt>Price for two</dt><dd><strong>~$60–$95</strong> excl. drinks — a mezze spread is light on spend (reviews cite ~$20–40pp); add a shared grill plate and a couple of drinks to land in your band.</dd>
+    <dt>Why it fits you</dt></dd>
+    <div class="why">If Lo Presti's won't give you a table, this is the one that scratches the same itch: a table full of small, made-to-order plates in a confident, lived-in room — independent, single-site, Middle Eastern. It's the closest analogue to the specific thing Lo Presti's is.</div>
+    <div class="status warn">
+      <span class="lbl">Booking status — unconfirmed.</span>
+      Platform not identifiable from the surfaces in this run (SevenRooms slug probes returned 400; the Google "Find a table" button discloses no platform; Wix site has no booking/hours page). <strong>Close the table yourself:</strong> use the <a href="https://www.google.com/maps/place/Lil%27+miss+piggy/+" target="_blank" rel="noopener">"Find a table" button on the Google Maps listing</a> / <a href="https://lilmisspiggy.com" target="_blank" rel="noopener">lilmisspiggy.com</a>.
+    </div>
+  </dl>
+</div>
+
+<h2><span class="num">2</span>Direct answer: Lo Presti's</h2>
+<div class="lo-answer">
+  <p class="q">"I've been wanting to try Lo Presti's in Redfern. Does it work for that night?"</p>
+  <p><strong>For the food and the room: yes. For a confirmed table: I can't give you one.</strong> The night works on every axis that matters to you — it's open Saturday 12:00–11:30 (its own site), 7pm is mid-service, it's a 10–15 min drive, independent and single-site, share-plate Italian at the price you want, in Redfern which you've listed as in-scope. The one thing I <em>cannot</em> do is confirm a table, because Lo Presti's books through OpenTable and OpenTable blocks every automated route (page hang / <code>ERR_HTTP2_PROTOCOL_ERROR</code>; <code>restref</code> endpoints return 503; the widget iframe is an empty client-side shell). I'm reporting that plainly rather than claiming a confirmation I never made.</p>
+  <p><strong>To get the table:</strong> call <a href="tel:0403368781"><strong>0403 368 781</strong></a> or the <a href="https://loprestisrestaurant.com" target="_blank" rel="noopener">"Book a Table"</a> button on the site. It's a small, busy place, so call early in the week for a Saturday 7pm for two.</p>
+  <p><strong>If it comes back full, the closest thing is <strong>Lil' Miss Piggy</strong> (Surry Hills)</strong> — same format (a table of made-to-order share plates, no tasting menu, no wine-list-first posture, a small confident independent room) in Levantine rather than Italian. Note it's <em>unconfirmed</em> (platform + Saturday hours I couldn't verify), so call it. If you want a <em>confirmed</em> table instead and can pull the sitting forward to ~6pm, <strong>Semola (Marrickville)</strong> is the one with a live, checked, bookable window — but its 7:00pm seat specifically is waitlist-only.</p>
+</div>
+
+<h2><span class="num">3</span>Starred pick</h2>
+<div class="pick">
+  <p class="t">★ Lo Presti's, Redfern</p>
+  <p>It wins because it is the meal you named, it's open at 7pm, it nails the format (share plates, specific identity, independent, in your area, on budget) — and the only gap is a phone call, not a verdict on the venue. The honest footnote: the only <em>system-confirmed</em> table for that Saturday I could actually verify is Semola's 5:30–6:15pm window, so if a confirmed seat matters more than the 7pm sit, that's where the star quietly moves.</p>
+</div>
+
+<h2><span class="num">4</span>Checks — every venue I went and looked at</h2>
+<p style="color:var(--muted);font-size:13.5px;margin:0 0 10px">This is the section that separates research from a guess. Every venue I recommend is below, with the platform I checked, the exact query, and what came back. "Unconfirmed" is a finding, not a shrug.</p>
+<table class="checks">
+  <thead>
+    <tr><th style="width:140px">Venue</th><th style="width:96px">Platform</th><th>What I queried</th><th>What came back</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Lo Presti's</strong><br>Redfern</td>
+      <td>OpenTable</td>
+      <td>OpenTable restaurant page for Lo Presti's; the <code>restref</code> availability endpoint; the embedded widget iframe</td>
+      <td>
+        <span class="pill bad">Blocked</span>
+        Page hung (navigation timed out); <code>restref</code> availability endpoints returned <strong>503</strong>; the widget iframe rendered as an empty client-side shell. <strong>No availability data returned.</strong> Reported as <em>booking unconfirmed</em>; diner to call 0403 368 781 or use OpenTable directly.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Semola</strong><br>Marrickville</td>
+      <td>SevenRooms</td>
+      <td>
+        Slug probes: <code>venue=semola</code> → <span class="pill warn">200, empty</span> (ambiguous); <code>venue=semolasydney</code> → <span class="pill ok">200, live data</span>. <br>
+        Availability (Sat 2026-09-26, party 2): <code>time_slot=19:00</code> at <code>halo_size_interval=100</code> (truncated), then compact reads at <code>halo_size_interval=1</code> and <code>=30</code> to resolve the dinner shift.
+      </td>
+      <td>
+        <span class="pill ok">Verified + checked</span>
+        Slug <code>semolasydney</code> confirmed as the real Marrickville Semola from response content (212 Marrickville Rd, "Chef Nello", "Sat &amp; Sun Italian Feast" $49pp weekend lunch, 0412 277 831). <strong>Dinner Fr-Sa shift, Sat 26 Sep:</strong> <code>type:"book"</code> at <strong>17:30 / 17:45 / 18:00 / 18:15</strong>; <code>type:"request"</code> (waitlist, <em>not</em> bookable) at <strong>18:45 / 19:00 / 19:15</strong>. <strong>Conclusion: 7:00pm is waitlist-only; the confirmed bookable window is 5:30–6:15pm.</strong> (Early <code>halo_size_interval=100</code> requests truncated on the "Italian Feast" lunch upsell text before the dinner shift rendered; smaller halo returned compact, readable slot types.)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Lil' Miss Piggy</strong><br>Surry Hills</td>
+      <td>Unidentified</td>
+      <td>
+        SevenRooms slug probes: <code>venue=lil-miss-piggy</code> → <span class="pill bad">400 "no venue provided"</span>; <code>venue=lilmisspiggy</code> → <span class="pill bad">400</span>. Wix site (lilmisspiggy.com) — all booking/hours sub-paths 404. Google Maps shows a "Find a table" button (platform not disclosed in snippet).
+      </td>
+      <td>
+        <span class="pill warn">No platform, no availability</span>
+        <strong>No availability data returned</strong>; Saturday hours not confirmable from a citable source (Google panel shows Wed 5–10pm only). Reported as <em>booking unconfirmed</em>; diner to use the Google "Find a table" button or the website.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Lo Presti's</strong> — rating</td>
+      <td>Google Maps</td>
+      <td>maps_lookup("Lo Presti's Redfern Sydney")</td>
+      <td><span class="pill ok">5.0★</span> review count returned <code>null</code> (documented: not available from this surface; Restaurant Guru mirror 404/503). Rating citable; count is not. Flagged in the card.</td>
+    </tr>
+    <tr>
+      <td><strong>Semola</strong> — rating/count</td>
+      <td>Google Maps + Restaurant Guru</td>
+      <td>maps_lookup("Semola 212 Marrickville Road") → 4.7★ (count null). restaurantguru.com/Semola-Marrickville → "Google (4.7/5) 648"</td>
+      <td><span class="pill ok">4.7★ / 648</span> — count cited from Restaurant Guru (server-rendered mirror of Google data).</td>
+    </tr>
+    <tr>
+      <td><strong>Lil' Miss Piggy</strong> — rating/count</td>
+      <td>Google Maps + Restaurant Guru</td>
+      <td>maps_lookup("Lil miss piggy Surry Hills") → 4.8★ (count null), hours "Wed 5–10pm". restaurantguru.com/Lil-miss-piggy-Surry-Hills → "Google (4.8/5) 580"</td>
+      <td><span class="pill ok">4.8★ / 580</span> — count cited from Restaurant Guru.</td>
+    </tr>
+    <tr>
+      <td><strong>Lo Presti's</strong> — hours</td>
+      <td>Venue website</td>
+      <td>loprestisrestaurant.com (fetched)</td>
+      <td><span class="pill ok">"Saturday 12:00 – 11:30"</span> — quoted verbatim from the OPENING HOURS block.</td>
+    </tr>
+    <tr>
+      <td><strong>Semola</strong> — hours</td>
+      <td>Venue website</td>
+      <td>semola.com.au/contact (fetched)</td>
+      <td><span class="pill ok">"FRIDAY &amp; SATURDAY 12:00PM – 3:00PM, 5:30PM – 10:00PM"</span> — quoted verbatim.</td>
+    </tr>
+    <tr>
+      <td><strong>Lil' Miss Piggy</strong> — hours</td>
+      <td>Google Maps + venue website</td>
+      <td>maps_lookup → "Wednesday 5–10pm" only. Wix site has no hours page (all sub-paths 404).</td>
+      <td><span class="pill warn">Saturday row not available from a citable source.</span> Flagged in the card; diner to call before relying on the night.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2><span class="num">5</span>Sources</h2>
+<ul class="mini">
+  <li><strong>Lo Presti's hours &amp; menu:</strong> <a href="https://loprestisrestaurant.com" target="_blank" rel="noopener">loprestisrestaurant.com</a></li>
+  <li><strong>Lo Presti's rating:</strong> <a href="https://www.google.com/maps/place/Lo+Presti%27s+Restaurant/+" target="_blank" rel="noopener">Google Maps place page</a> (5.0★; review count not retrievable from available surfaces)</li>
+  <li><strong>Semola hours, address, phone:</strong> <a href="https://semola.com.au/contact" target="_blank" rel="noopener">semola.com.au/contact</a></li>
+  <li><strong>Semola rating &amp; review count:</strong> <a href="https://restaurantguru.com/Semola-Marrickville" target="_blank" rel="noopener">restaurantguru.com/Semola-Marrickville</a> (4.7★ / 648); cross-check <a href="https://www.google.com/maps/place/Semola+Sydney/+" target="_blank" rel="noopener">Google Maps</a></li>
+  <li><strong>Semola availability (slot types):</strong> SevenRooms API <code>…/api-yoa/availability/widget/range?venue=semolasydney&…</code> — dinner shift <code>book</code> 17:30–18:15, <code>request</code> 18:45–19:15</li>
+  <li><strong>Lil' Miss Piggy rating &amp; review count:</strong> <a href="https://restaurantguru.com/Lil-miss-piggy-Surry-Hills" target="_blank" rel="noopener">restaurantguru.com/Lil-miss-piggy-Surry-Hills</a> (4.8★ / 580); cross-check <a href="https://www.google.com/maps/place/Lil%27+miss+piggy/+" target="_blank" rel="noopener">Google Maps</a></li>
+  <li><strong>Lil' Miss Piggy hours:</strong> <a href="https://www.google.com/maps/place/Lil%27+miss+piggy/+" target="_blank" rel="noopener">Google Maps</a> (Wednesday 5–10pm row only; Saturday not confirmed)</li>
+  <li><strong>OpenTable block (Lo Presti's):</strong> observed in this run — page hang / <code>ERR_HTTP2_PROTOCOL_ERROR</code>, <code>restref</code> 503, empty widget shell (see Checks)</li>
+</ul>
+
+<div class="foot">
+Prepared for a party of two, Saturday 26 September 2026, 7:00pm dinner, starting from Ultimo. <span class="note">Drive times are door-to-door Saturday-evening estimates and can move with traffic — allow slack. Parking is a real constraint at all three venues on a Saturday night; arriving closer to 6:30pm buys the easiest spot.</span>
+<br>
+<span class="note">Booking confirmations were made against live platform data where the platform was reachable and a slot was actually <code>type:"book"</code>: Semola (SevenRooms — 17:30–18:15 bookable; 19:00 waitlist-only). Lo Presti's (OpenTable) blocked the automated check and Lil' Miss Piggy's platform could not be reached from the surfaces available in this run — both are flagged as unconfirmed with the phone/booking route to close the table yourself. A slot reported as <code>type:"request"</code> (waitlist) is not treated as a bookable table.</span>
+</div>
+
+</div>
+</body>
+</html>

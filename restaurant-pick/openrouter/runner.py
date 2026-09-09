@@ -38,6 +38,16 @@ MODELS = {
     "astra": "openai/gpt-6-astra",
 }
 
+# USD per million tokens: (uncached input, cache read, output). Same rates as
+# the hangar table, so the running estimate matches what extract_metrics reports.
+RATES = {
+    "glm":   (0.075,  0.015, 0.250),
+    "qwen":  (0.420,  0.085, 3.000),
+    "luna":  (0.200,  0.020, 1.200),
+    "sol":   (1.000,  0.100, 5.000),
+    "astra": (10.000, 1.000, 50.000),
+}
+
 TOOLS = [
     {"type": "function", "function": {
         "name": "fetch_url",
@@ -148,7 +158,9 @@ def stream_turn(key, model, messages, log):
             if data == "[DONE]":
                 break
             try:
-                chunk = json.loads(data)
+                # strict=False: Qwen emits raw control characters inside its
+                # reasoning field, which the strict decoder rejects.
+                chunk = json.loads(data, strict=False)
             except json.JSONDecodeError:
                 continue
             if chunk.get("usage"):
@@ -157,6 +169,11 @@ def stream_turn(key, model, messages, log):
                 if choice.get("finish_reason"):
                     finish = choice["finish_reason"]
                 delta = choice.get("delta") or {}
+                # Reasoning arrives in its own field and is the model's first
+                # real output, so it counts toward TTFT; otherwise a model that
+                # thinks for seven minutes looks like it stalled.
+                if delta.get("reasoning") and ttft is None:
+                    ttft = time.time() - started
                 if delta.get("content"):
                     if ttft is None:
                         ttft = time.time() - started
@@ -195,6 +212,10 @@ def main():
     parser.add_argument("--target-date", help='e.g. "Saturday 17 October 2026"; default is the next Saturday 14+ days out')
     parser.add_argument("--tools-port", type=int, default=8791)
     parser.add_argument("--max-turns", type=int, default=40)
+    # Astra is $10/M input and $50/M output; one loop that will not settle can
+    # spend more than the account holds. Stop on cost, not just on turns.
+    parser.add_argument("--max-cost", type=float, default=2.00,
+                        help="abort once estimated spend passes this many USD")
     parser.add_argument("--dry-run", action="store_true", help="print the prompt and exit")
     args = parser.parse_args()
 
@@ -214,7 +235,12 @@ def main():
 
     key = os.environ.get("OPENROUTER_API_KEY")
     if not key:
-        sys.exit("OPENROUTER_API_KEY is not set")
+        keyfile = os.path.expanduser("~/.openrouter-key")
+        if os.path.exists(keyfile):
+            with open(keyfile) as handle:
+                key = handle.read().strip()
+    if not key:
+        sys.exit("set OPENROUTER_API_KEY or put the key in ~/.openrouter-key")
 
     os.makedirs(args.out, exist_ok=True)
     transcript = open(os.path.join(args.out, "transcript.jsonl"), "w")
@@ -231,6 +257,8 @@ def main():
     messages = [{"role": "user", "content": prompt}]
     started = time.time()
     calls = errors = 0
+    spend = 0.0
+    in_rate, cache_rate, out_rate = RATES[args.model]
 
     for turn in range(args.max_turns):
         log({"type": "turn/start", "turn": turn})
@@ -242,7 +270,20 @@ def main():
             print(f"HTTP {exc.code}: {detail}", file=sys.stderr)
             break
         messages.append(message)
-        log({"type": "turn/end", "turn": turn})
+
+        if usage:
+            cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
+            uncached = max((usage.get("prompt_tokens") or 0) - cached, 0)
+            spend += (uncached * in_rate + cached * cache_rate
+                      + (usage.get("completion_tokens") or 0) * out_rate) / 1e6
+        log({"type": "turn/end", "turn": turn, "spend_usd": round(spend, 6)})
+
+        if spend >= args.max_cost:
+            log({"type": "session/complete", "reason": "hit --max-cost",
+                 "spend_usd": round(spend, 6), "max_cost": args.max_cost})
+            print(f"stopped: estimated spend ${spend:.4f} passed --max-cost "
+                  f"${args.max_cost:.2f}", file=sys.stderr)
+            break
 
         if not message.get("tool_calls"):
             log({"type": "session/complete", "reason": "no more tool calls"})
@@ -270,6 +311,11 @@ def main():
                 errors += 1
             body = json.dumps(result)
             log({"type": "tool/result", "name": name, "bytes": len(body),
+                 # The body is recorded, not just its size: scoring has to be
+                 # able to trace a quoted rating or phone number to a source.
+                 # Capped so a large page cannot bloat the transcript.
+                 "result": body[:20000],
+                 "result_truncated": len(body) > 20000,
                  **({"error": result["error"]} if isinstance(result, dict) and result.get("error") else {})})
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": body})
     else:
@@ -277,13 +323,15 @@ def main():
 
     wrote = os.path.exists(os.path.join(args.out, "recommendation.html"))
     log({"type": "session/end", "duration_s": round(time.time() - started, 3),
-         "tool_calls": calls, "tool_errors": errors, "produced_output": wrote})
+         "tool_calls": calls, "tool_errors": errors, "produced_output": wrote,
+         "spend_usd": round(spend, 6)})
     transcript.close()
 
     print(f"model      {MODELS[args.model]}")
     print(f"target     {target} ({target.strftime('%A')})")
     print(f"duration   {time.time() - started:.1f}s")
     print(f"tool calls {calls} ({errors} errors)")
+    print(f"est. spend ${spend:.4f}")
     print(f"output     {'recommendation.html written' if wrote else 'NO OUTPUT PRODUCED'}")
     print(f"transcript {os.path.join(args.out, 'transcript.jsonl')}")
     return 0 if wrote else 1

@@ -1,0 +1,16 @@
+{
+  "model": "Luna 5.6 Max",
+  "harness": "OpenRouter",
+  "run_date": "2026-09-09",
+  "target_date": "2026-09-26",
+  "hard_filters": 16,
+  "taste_fit": 12,
+  "verification": 19,
+  "honesty": 7,
+  "named_venue": 4,
+  "output": 5,
+  "total": 63,
+  "booking_checks": "2/2",
+  "fabrications": [],
+  "notes": "Fastest run by far: 122s, 5 turns, 20 tool calls, $0.0072, and it terminated cleanly. But it did a fraction of the work: 2 SevenRooms slugs, no review counts at all.\n\nThe scored failure: it asserts OpenTable blocked the availability check and NEVER ATTEMPTED OPENTABLE. Zero OpenTable URLs in the transcript. The prompt states that OpenTable blocks automation, so this is the pre-documented platform pack being read back as a finding. -8 honesty and 0 for the blocked-check line in verification. No invented venues, ratings or links, so fabrications is empty - this is an unsupported claim, not a fabrication. Tool bodies not logged in this run, so the match line is unauditable."
+}
