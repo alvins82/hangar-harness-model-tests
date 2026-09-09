@@ -1,0 +1,265 @@
+{"type": "session", "model": "qwen/qwen3.8-27b", "model_key": "qwen", "target_date": "2026-09-26", "run_date": "2026-09-09", "prompt_chars": 5979, "tools": ["fetch_url", "maps_lookup", "search_timeout", "write_file"], "time": "2026-09-09T04:05:48.629879+00:00"}
+{"type": "turn/start", "turn": 0, "time": "2026-09-09T04:05:48.630511+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 2143, "completion_tokens": 7457, "total_tokens": 9600, "cost": 0.019473952, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.019473952, "upstream_inference_prompt_cost": 0.000458602, "upstream_inference_completions_cost": 0.01901535}, "completion_tokens_details": {"reasoning_tokens": 6210, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 114.99132990837097, "content_chars": 0, "tool_calls": ["maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup"], "time": "2026-09-09T04:07:47.400261+00:00"}
+{"type": "turn/end", "turn": 0, "spend_usd": 0.023271, "time": "2026-09-09T04:07:47.435935+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lo Presti's Redfern Sydney"}, "time": "2026-09-09T04:07:47.436102+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 924, "time": "2026-09-09T04:07:53.552199+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Coppa Marrickville Sydney"}, "time": "2026-09-09T04:07:53.552376+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 805, "time": "2026-09-09T04:07:59.330840+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Sotto Little John Street Sydney"}, "time": "2026-09-09T04:07:59.331278+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 800, "time": "2026-09-09T04:08:05.186239+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Krua Thai Sydney"}, "time": "2026-09-09T04:08:05.186922+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 785, "time": "2026-09-09T04:08:10.986476+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Jade Egg Sydney"}, "time": "2026-09-09T04:08:10.989187+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 820, "time": "2026-09-09T04:08:16.827892+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Anam Bondi Sydney"}, "time": "2026-09-09T04:08:16.828097+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 785, "time": "2026-09-09T04:08:22.632921+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Mazzo Kings Cross Sydney"}, "time": "2026-09-09T04:08:22.633077+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 825, "time": "2026-09-09T04:08:28.520810+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Saffron Surry Hills Sydney"}, "time": "2026-09-09T04:08:28.520917+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 785, "time": "2026-09-09T04:08:34.401790+00:00"}
+{"type": "turn/start", "turn": 1, "time": "2026-09-09T04:08:34.401973+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 4999, "completion_tokens": 2191, "total_tokens": 7190, "cost": 0.006656836, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.006656836, "upstream_inference_prompt_cost": 0.001069786, "upstream_inference_completions_cost": 0.00558705}, "completion_tokens_details": {"reasoning_tokens": 1801, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 41.4502489566803, "content_chars": 126, "tool_calls": ["maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "fetch_url", "search_timeout"], "time": "2026-09-09T04:09:21.257215+00:00"}
+{"type": "turn/end", "turn": 1, "spend_usd": 0.031944, "time": "2026-09-09T04:09:21.259651+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Coppa restaurant Marrickville Road"}, "time": "2026-09-09T04:09:21.259760+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 810, "time": "2026-09-09T04:09:27.330398+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Sotto restaurant 18 Little John Street Sydney"}, "time": "2026-09-09T04:09:27.330573+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 795, "time": "2026-09-09T04:09:33.186883+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Krua Thai 224 Crown Street Sydney"}, "time": "2026-09-09T04:09:33.187128+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 865, "time": "2026-09-09T04:09:39.025474+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Jade Egg restaurant Crown Street"}, "time": "2026-09-09T04:09:39.025752+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 815, "time": "2026-09-09T04:09:44.841204+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Anam restaurant Bondi Junction"}, "time": "2026-09-09T04:09:44.841407+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 805, "time": "2026-09-09T04:09:50.724609+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Mazzo Italian restaurant King Street Kings Cross"}, "time": "2026-09-09T04:09:50.724774+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 820, "time": "2026-09-09T04:09:56.632062+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://loprestisrestaurant.com"}, "time": "2026-09-09T04:09:56.632229+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 1552, "time": "2026-09-09T04:09:58.678751+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Lo Presti's Sydney"}, "time": "2026-09-09T04:09:58.678798+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 2, "time": "2026-09-09T04:10:01.687063+00:00"}
+{"type": "turn/start", "turn": 2, "time": "2026-09-09T04:10:01.687158+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 7774, "completion_tokens": 3585, "total_tokens": 11359, "cost": 0.010805386, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.010805386, "upstream_inference_prompt_cost": 0.001663636, "upstream_inference_completions_cost": 0.00914175}, "completion_tokens_details": {"reasoning_tokens": 2997, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 57.05870223045349, "content_chars": 205, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:11:03.081895+00:00"}
+{"type": "turn/end", "turn": 2, "spend_usd": 0.045964, "time": "2026-09-09T04:11:03.082429+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://coppa.com.au"}, "time": "2026-09-09T04:11:03.082484+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 122, "time": "2026-09-09T04:11:03.205049+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://sotto.com.au"}, "time": "2026-09-09T04:11:03.205106+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 943, "time": "2026-09-09T04:11:04.473367+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.saffron.com.au"}, "time": "2026-09-09T04:11:04.473499+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 465, "time": "2026-09-09T04:11:07.441120+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.jadeegg.com.au"}, "time": "2026-09-09T04:11:07.441212+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 128, "time": "2026-09-09T04:11:07.562976+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.kruathai.com.au"}, "time": "2026-09-09T04:11:07.563014+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:11:08.979690+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.anam.com.au"}, "time": "2026-09-09T04:11:08.979744+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2323, "time": "2026-09-09T04:11:15.422103+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Lo+Presti%27s+Restaurant+Redfern"}, "time": "2026-09-09T04:11:15.422401+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:17.072868+00:00"}
+{"type": "turn/start", "turn": 3, "time": "2026-09-09T04:11:17.072915+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 9259, "completion_tokens": 1350, "total_tokens": 10609, "cost": 0.005022518, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 6272, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.005022518, "upstream_inference_prompt_cost": 0.001580018, "upstream_inference_completions_cost": 0.0034425}, "completion_tokens_details": {"reasoning_tokens": 1187, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 17.19967007637024, "content_chars": 0, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:11:38.477954+00:00"}
+{"type": "turn/end", "turn": 3, "spend_usd": 0.051801, "time": "2026-09-09T04:11:38.478556+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Sotto+18+Little+John+St+Sydney"}, "time": "2026-09-09T04:11:38.478626+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:39.620479+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Friggitoria+Sydney"}, "time": "2026-09-09T04:11:39.620523+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:40.897824+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Semola+Marrickville"}, "time": "2026-09-09T04:11:40.897936+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:42.420263+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Krua+Thai+Sydney"}, "time": "2026-09-09T04:11:42.420358+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:43.653551+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/The+Jade+Surry+Hills"}, "time": "2026-09-09T04:11:43.653596+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:44.939351+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Pappa+Flock+Marrickville"}, "time": "2026-09-09T04:11:44.939500+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:46.196173+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/search/Lo+Presti%27s+Redfern"}, "time": "2026-09-09T04:11:46.196237+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:11:47.567552+00:00"}
+{"type": "turn/start", "turn": 4, "time": "2026-09-09T04:11:47.567941+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 9732, "completion_tokens": 2297, "total_tokens": 12029, "cost": 0.007438238, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 7840, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.007438238, "upstream_inference_prompt_cost": 0.001580888, "upstream_inference_completions_cost": 0.00585735}, "completion_tokens_details": {"reasoning_tokens": 1872, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 34.84013295173645, "content_chars": 261, "tool_calls": ["maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "maps_lookup", "fetch_url"], "time": "2026-09-09T04:12:28.892481+00:00"}
+{"type": "turn/end", "turn": 4, "spend_usd": 0.060153, "time": "2026-09-09T04:12:28.893074+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Sotto restaurant 18 Little John Street Pyrmont"}, "time": "2026-09-09T04:12:28.893129+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 810, "time": "2026-09-09T04:12:34.973548+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Jade Egg 61 Gresham Street Sydney"}, "time": "2026-09-09T04:12:34.973698+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 727, "time": "2026-09-09T04:12:40.873215+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Coppa 78 Marrickville Road"}, "time": "2026-09-09T04:12:40.873335+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 810, "time": "2026-09-09T04:12:46.850979+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Krua Thai 224 Crown Street Surry Hills"}, "time": "2026-09-09T04:12:46.851192+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 885, "time": "2026-09-09T04:12:52.728112+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Semola 212 Marrickville Road"}, "time": "2026-09-09T04:12:52.728400+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 949, "time": "2026-09-09T04:12:58.639125+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lil miss piggy 265 Crown Street"}, "time": "2026-09-09T04:12:58.639285+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 901, "time": "2026-09-09T04:13:04.497875+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/place/Jade+Egg+Restaurant/@-33.8730,151.2070,17z/data=!3m1!4b1!4m6!3m5!1s0x0:0x0!8m2!3d-33.873!4d151.207!16zL20v"}, "time": "2026-09-09T04:13:04.498029+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:13:05.869064+00:00"}
+{"type": "turn/start", "turn": 5, "time": "2026-09-09T04:13:05.869176+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 12150, "completion_tokens": 2481, "total_tokens": 14631, "cost": 0.008324538, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 9408, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.008324538, "upstream_inference_prompt_cost": 0.001997988, "upstream_inference_completions_cost": 0.00632655}, "completion_tokens_details": {"reasoning_tokens": 2114, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 37.252366065979004, "content_chars": 246, "tool_calls": ["fetch_url", "fetch_url", "search_timeout", "search_timeout", "search_timeout"], "time": "2026-09-09T04:13:46.661509+00:00"}
+{"type": "turn/end", "turn": 5, "spend_usd": 0.069548, "time": "2026-09-09T04:13:46.661950+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://html.duckduckgo.com/html/?q=Lo+Presti%27s+Redfern+Google+reviews"}, "time": "2026-09-09T04:13:46.661995+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 14933, "time": "2026-09-09T04:13:46.943477+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com"}, "time": "2026-09-09T04:13:46.943525+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 891, "time": "2026-09-09T04:13:48.552675+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Semola Marrickville book a table"}, "time": "2026-09-09T04:13:48.552847+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 2, "time": "2026-09-09T04:13:51.442112+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Friggitoria Sydney restaurant"}, "time": "2026-09-09T04:13:51.442234+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 765, "time": "2026-09-09T04:13:54.081513+00:00"}
+{"type": "tool/call", "name": "search_timeout", "args": {"query": "Krua Thai Crown Street Sydney"}, "time": "2026-09-09T04:13:54.081581+00:00"}
+{"type": "tool/result", "name": "search_timeout", "bytes": 2, "time": "2026-09-09T04:13:56.739826+00:00"}
+{"type": "turn/start", "turn": 6, "time": "2026-09-09T04:13:56.740029+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 18239, "completion_tokens": 4182, "total_tokens": 22421, "cost": 0.014567246, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.014567246, "upstream_inference_prompt_cost": 0.003903146, "upstream_inference_completions_cost": 0.0106641}, "completion_tokens_details": {"reasoning_tokens": 4038, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 86.91735410690308, "content_chars": 337, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:15:26.788263+00:00"}
+{"type": "turn/end", "turn": 6, "spend_usd": 0.089754, "time": "2026-09-09T04:15:26.789176+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.google.com/maps/place/?q=place_id:Lo Presti's Restaurant Redfern"}, "time": "2026-09-09T04:15:26.789223+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 47, "time": "2026-09-09T04:15:28.477299+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://semola.com.au"}, "time": "2026-09-09T04:15:28.477537+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 1715, "time": "2026-09-09T04:15:35.102225+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.lilmisspiggy.com"}, "time": "2026-09-09T04:15:35.102424+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 354, "time": "2026-09-09T04:15:37.161039+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.friggitoria.com.au"}, "time": "2026-09-09T04:15:37.161120+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 3943, "time": "2026-09-09T04:15:39.377999+00:00"}
+{"type": "turn/start", "turn": 7, "time": "2026-09-09T04:15:39.378096+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 20061, "completion_tokens": 2817, "total_tokens": 22878, "cost": 0.011476404, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.011476404, "upstream_inference_prompt_cost": 0.004293054, "upstream_inference_completions_cost": 0.00718335}, "completion_tokens_details": {"reasoning_tokens": 2394, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 46.30152773857117, "content_chars": 415, "tool_calls": ["fetch_url", "fetch_url", "maps_lookup", "maps_lookup"], "time": "2026-09-09T04:16:30.119779+00:00"}
+{"type": "turn/end", "turn": 7, "spend_usd": 0.106631, "time": "2026-09-09T04:16:30.121122+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern"}, "time": "2026-09-09T04:16:30.121184+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2707, "time": "2026-09-09T04:16:32.755283+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Semola-Marrickville"}, "time": "2026-09-09T04:16:32.755406+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 4538, "time": "2026-09-09T04:16:34.423309+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Anam restaurant 122 Bondi Junction NSW"}, "time": "2026-09-09T04:16:34.423374+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 810, "time": "2026-09-09T04:16:40.378517+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Mazzo restaurant Newington King Street"}, "time": "2026-09-09T04:16:40.378834+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 785, "time": "2026-09-09T04:16:46.298067+00:00"}
+{"type": "turn/start", "turn": 8, "time": "2026-09-09T04:16:46.298661+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 22906, "completion_tokens": 1857, "total_tokens": 24763, "cost": 0.009637234, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.009637234, "upstream_inference_prompt_cost": 0.004901884, "upstream_inference_completions_cost": 0.00473535}, "completion_tokens_details": {"reasoning_tokens": 1393, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 32.97961783409119, "content_chars": 195, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url", "fetch_url", "maps_lookup"], "time": "2026-09-09T04:17:24.836965+00:00"}
+{"type": "turn/end", "turn": 8, "spend_usd": 0.121822, "time": "2026-09-09T04:17:24.837516+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lil-miss-piggy-Surry-Hills"}, "time": "2026-09-09T04:17:24.837586+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 4684, "time": "2026-09-09T04:17:26.233347+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Friggitoria-Potts-Point"}, "time": "2026-09-09T04:17:26.233431+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2707, "time": "2026-09-09T04:17:28.234277+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Mazzo-Kings-Cross"}, "time": "2026-09-09T04:17:28.234362+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2707, "time": "2026-09-09T04:17:29.419104+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern"}, "time": "2026-09-09T04:17:29.419151+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:17:30.885291+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com/menu"}, "time": "2026-09-09T04:17:30.885429+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:17:32.594294+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lil miss piggy Surry Hills booking"}, "time": "2026-09-09T04:17:32.594346+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 901, "time": "2026-09-09T04:17:38.437861+00:00"}
+{"type": "turn/start", "turn": 9, "time": "2026-09-09T04:17:38.438392+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 26509, "completion_tokens": 5080, "total_tokens": 31589, "cost": 0.017221998, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 21952, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.017221998, "upstream_inference_prompt_cost": 0.004267998, "upstream_inference_completions_cost": 0.012954}, "completion_tokens_details": {"reasoning_tokens": 4251, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 96.36403512954712, "content_chars": 280, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "maps_lookup", "fetch_url"], "time": "2026-09-09T04:19:20.401339+00:00"}
+{"type": "turn/end", "turn": 9, "spend_usd": 0.140842, "time": "2026-09-09T04:19:20.402484+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:19:20.402636+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:19:22.604158+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://semola.com.au/reservations"}, "time": "2026-09-09T04:19:22.604266+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 399, "time": "2026-09-09T04:19:28.961905+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com"}, "time": "2026-09-09T04:19:28.962140+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 354, "time": "2026-09-09T04:19:29.671306+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Mazzo Italian restaurant King Street Newington booking"}, "time": "2026-09-09T04:19:29.671383+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 785, "time": "2026-09-09T04:19:35.579449+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Semola-Sydney"}, "time": "2026-09-09T04:19:35.579846+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:19:37.280438+00:00"}
+{"type": "turn/start", "turn": 10, "time": "2026-09-09T04:19:37.280506+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 27454, "completion_tokens": 3414, "total_tokens": 30868, "cost": 0.012975224, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 25088, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.012975224, "upstream_inference_prompt_cost": 0.004269524, "upstream_inference_completions_cost": 0.0087057}, "completion_tokens_details": {"reasoning_tokens": 2774, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 68.70978212356567, "content_chars": 326, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:20:55.204221+00:00"}
+{"type": "turn/end", "turn": 10, "spend_usd": 0.15421, "time": "2026-09-09T04:20:55.204841+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semola&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:20:55.204883+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 201, "time": "2026-09-09T04:20:56.365640+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=lil-miss-piggy&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:20:56.365778+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:20:56.968713+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=lilmisspiggy&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:20:56.968761+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:20:57.518692+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:20:57.518771+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:20:59.590183+00:00"}
+{"type": "turn/start", "turn": 11, "time": "2026-09-09T04:20:59.590266+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 28286, "completion_tokens": 982, "total_tokens": 29268, "cost": 0.00685132, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 26656, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.00685132, "upstream_inference_prompt_cost": 0.00434722, "upstream_inference_completions_cost": 0.0025041}, "completion_tokens_details": {"reasoning_tokens": 754, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 16.49115300178528, "content_chars": 347, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:21:20.986115+00:00"}
+{"type": "turn/end", "turn": 11, "spend_usd": 0.160107, "time": "2026-09-09T04:21:20.986352+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://semola.sevenrooms.com"}, "time": "2026-09-09T04:21:20.986377+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 65, "time": "2026-09-09T04:21:22.307902+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/restaurant/semola"}, "time": "2026-09-09T04:21:22.308005+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 195, "time": "2026-09-09T04:21:24.212288+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com/opening-hours"}, "time": "2026-09-09T04:21:24.212612+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:21:26.013738+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:21:26.013823+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 309, "time": "2026-09-09T04:21:27.653031+00:00"}
+{"type": "turn/start", "turn": 12, "time": "2026-09-09T04:21:27.653068+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 28738, "completion_tokens": 3857, "total_tokens": 32595, "cost": 0.014178946, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 28224, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.014178946, "upstream_inference_prompt_cost": 0.004343596, "upstream_inference_completions_cost": 0.00983535}, "completion_tokens_details": {"reasoning_tokens": 3421, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 68.30713486671448, "content_chars": 333, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:22:40.759051+00:00"}
+{"type": "turn/end", "turn": 12, "spend_usd": 0.174293, "time": "2026-09-09T04:22:40.759827+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.bing.com/search?q=Lo+Presti%27s+Redfern+restaurant+Google+reviews+rating+stars"}, "time": "2026-09-09T04:22:40.759945+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 119, "time": "2026-09-09T04:22:41.885674+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.bing.com/search?q=Semola+Marrickville+restaurant+book+a+table+sevenrooms"}, "time": "2026-09-09T04:22:41.885735+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 1714, "time": "2026-09-09T04:22:42.628519+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com/reserve"}, "time": "2026-09-09T04:22:42.628761+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:22:44.364992+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.opentable.com.au/r/lopresti-s"}, "time": "2026-09-09T04:22:44.365063+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 35, "error": "tool server: timed out", "time": "2026-09-09T04:25:44.370216+00:00"}
+{"type": "turn/start", "turn": 13, "time": "2026-09-09T04:25:44.370875+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 29707, "completion_tokens": 647, "total_tokens": 30354, "cost": 0.006200812, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 28224, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.006200812, "upstream_inference_prompt_cost": 0.004550962, "upstream_inference_completions_cost": 0.00164985}, "completion_tokens_details": {"reasoning_tokens": 223, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 10.996871709823608, "content_chars": 219, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:26:04.108577+00:00"}
+{"type": "turn/end", "turn": 13, "spend_usd": 0.179255, "time": "2026-09-09T04:26:04.109322+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semola-sydney&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:26:04.109432+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:26:05.181574+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:26:05.181640+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:26:08.350284+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semola-marrickville&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:26:08.350376+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:26:08.901850+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:26:08.901924+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2707, "time": "2026-09-09T04:26:11.113219+00:00"}
+{"type": "turn/start", "turn": 14, "time": "2026-09-09T04:26:11.113437+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 59291, "completion_tokens": 6487, "total_tokens": 65778, "cost": 0.029230124, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.029230124, "upstream_inference_prompt_cost": 0.012688274, "upstream_inference_completions_cost": 0.01654185}, "completion_tokens_details": {"reasoning_tokens": 5633, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 110.97471690177917, "content_chars": 465, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:28:09.178896+00:00"}
+{"type": "turn/end", "turn": 14, "spend_usd": 0.223619, "time": "2026-09-09T04:28:09.180584+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=20%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:28:09.180676+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:28:11.598112+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=coppa&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:28:11.598196+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 196, "time": "2026-09-09T04:28:12.197406+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=sotto&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:28:12.197517+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 201, "time": "2026-09-09T04:28:12.953008+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:28:12.953108+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2707, "time": "2026-09-09T04:28:15.308907+00:00"}
+{"type": "turn/start", "turn": 15, "time": "2026-09-09T04:28:15.308993+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 88934, "completion_tokens": 5695, "total_tokens": 94629, "cost": 0.032851662, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 10976, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.032851662, "upstream_inference_prompt_cost": 0.018329412, "upstream_inference_completions_cost": 0.01452225}, "completion_tokens_details": {"reasoning_tokens": 5297, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 99.72189974784851, "content_chars": 400, "tool_calls": ["fetch_url", "fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:30:01.106683+00:00"}
+{"type": "turn/end", "turn": 15, "spend_usd": 0.274379, "time": "2026-09-09T04:30:01.107045+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://semola.com.au/contact"}, "time": "2026-09-09T04:30:01.107087+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 711, "time": "2026-09-09T04:30:10.148689+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com/book"}, "time": "2026-09-09T04:30:10.148788+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:30:12.171812+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://lilmisspiggy.com/contact"}, "time": "2026-09-09T04:30:12.171900+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:30:13.220909+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern-NSW"}, "time": "2026-09-09T04:30:13.221012+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2677, "time": "2026-09-09T04:30:15.264211+00:00"}
+{"type": "turn/start", "turn": 16, "time": "2026-09-09T04:30:15.264300+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 90385, "completion_tokens": 10513, "total_tokens": 100898, "cost": 0.040530828, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 87808, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.040530828, "upstream_inference_prompt_cost": 0.013722678, "upstream_inference_completions_cost": 0.02680815}, "completion_tokens_details": {"reasoning_tokens": 9705, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 188.33576798439026, "content_chars": 430, "tool_calls": ["fetch_url", "fetch_url", "fetch_url"], "time": "2026-09-09T04:33:28.747109+00:00"}
+{"type": "turn/end", "turn": 16, "spend_usd": 0.314464, "time": "2026-09-09T04:33:28.747654+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=19%3A00&party_size=1&halo_size_interval=100&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:33:28.747704+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:33:31.134019+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://restaurantguru.com/Lo-Presti-s-Redfern"}, "time": "2026-09-09T04:33:31.134098+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 2677, "time": "2026-09-09T04:33:33.196504+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.lilmisspiggy.com/opening-hours"}, "time": "2026-09-09T04:33:33.196648+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 156, "time": "2026-09-09T04:33:34.783282+00:00"}
+{"type": "turn/start", "turn": 17, "time": "2026-09-09T04:33:34.783459+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 119714, "completion_tokens": 6692, "total_tokens": 126406, "cost": 0.042683396, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.042683396, "upstream_inference_prompt_cost": 0.025618796, "upstream_inference_completions_cost": 0.0170646}, "completion_tokens_details": {"reasoning_tokens": 5879, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 123.47213983535767, "content_chars": 780, "tool_calls": ["fetch_url", "maps_lookup"], "time": "2026-09-09T04:35:45.075244+00:00"}
+{"type": "turn/end", "turn": 17, "spend_usd": 0.38482, "time": "2026-09-09T04:35:45.075575+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=19%3A00&party_size=2&halo_size_interval=100&start_date=2026-09-27&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:35:45.075614+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63333, "time": "2026-09-09T04:35:48.046095+00:00"}
+{"type": "tool/call", "name": "maps_lookup", "args": {"query": "Lil miss piggy Surry Hills opening hours Saturday"}, "time": "2026-09-09T04:35:48.046214+00:00"}
+{"type": "tool/result", "name": "maps_lookup", "bytes": 901, "time": "2026-09-09T04:35:54.167794+00:00"}
+{"type": "turn/start", "turn": 18, "time": "2026-09-09T04:35:54.167965+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 148400, "completion_tokens": 9308, "total_tokens": 157708, "cost": 0.090252, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.090252, "upstream_inference_prompt_cost": 0.062328, "upstream_inference_completions_cost": 0.027924}, "completion_tokens_details": {"reasoning_tokens": 1070, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 43.89075303077698, "content_chars": 615, "tool_calls": ["write_file"], "time": "2026-09-09T04:38:23.280345+00:00"}
+{"type": "turn/end", "turn": 18, "spend_usd": 0.475072, "time": "2026-09-09T04:38:23.281163+00:00"}
+{"type": "tool/call", "name": "write_file", "args": {"filename": "recommendation.html", "content": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Dinner, Sat 26 Sep 2026, 7pm \u2014 two, from Ultimo</title>\n<style>\n  :root{\n    --bg:#101114; --panel:#17181c; --panel2:#1d1e23;\n    --ink:#eceae4; --muted:#9a978d; --line:#2a2b31;\n    --accent:#c9a227; --ok:#5aa77a; --warn:#d1883f; "}, "time": "2026-09-09T04:38:23.282031+00:00"}
+{"type": "tool/result", "name": "write_file", "bytes": 50, "time": "2026-09-09T04:38:23.286650+00:00"}
+{"type": "turn/start", "turn": 19, "time": "2026-09-09T04:38:23.286688+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 156670, "completion_tokens": 2242, "total_tokens": 158912, "cost": 0.0232154, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 147200, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.0232154, "upstream_inference_prompt_cost": 0.0164894, "upstream_inference_completions_cost": 0.006726}, "completion_tokens_details": {"reasoning_tokens": 2045, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 59.55036687850952, "content_chars": 384, "tool_calls": ["fetch_url"], "time": "2026-09-09T04:39:25.554269+00:00"}
+{"type": "turn/end", "turn": 19, "spend_usd": 0.498287, "time": "2026-09-09T04:39:25.561039+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=19%3A00&party_size=2&halo_size_interval=1&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:39:25.561264+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 1321, "time": "2026-09-09T04:39:27.050794+00:00"}
+{"type": "turn/start", "turn": 20, "time": "2026-09-09T04:39:27.050833+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 157479, "completion_tokens": 1973, "total_tokens": 159452, "cost": 0.01996098, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 155520, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.01996098, "upstream_inference_prompt_cost": 0.01404198, "upstream_inference_completions_cost": 0.005919}, "completion_tokens_details": {"reasoning_tokens": 1624, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 34.39240002632141, "content_chars": 503, "tool_calls": ["fetch_url", "fetch_url"], "time": "2026-09-09T04:40:05.524119+00:00"}
+{"type": "turn/end", "turn": 20, "spend_usd": 0.518248, "time": "2026-09-09T04:40:05.524809+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=19%3A00&party_size=2&halo_size_interval=45&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:40:05.524895+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:40:10.426508+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=20%3A00&party_size=2&halo_size_interval=45&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:40:10.426567+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:40:12.677279+00:00"}
+{"type": "turn/start", "turn": 21, "time": "2026-09-09T04:40:12.677346+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 214121, "completion_tokens": 2271, "total_tokens": 216392, "cost": 0.04434446, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 156416, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.04434446, "upstream_inference_prompt_cost": 0.03753146, "upstream_inference_completions_cost": 0.006813}, "completion_tokens_details": {"reasoning_tokens": 1925, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 54.108238697052, "content_chars": 533, "tool_calls": ["fetch_url", "fetch_url"], "time": "2026-09-09T04:41:10.922851+00:00"}
+{"type": "turn/end", "turn": 21, "spend_usd": 0.562593, "time": "2026-09-09T04:41:10.923723+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=18%3A00&party_size=2&halo_size_interval=30&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:41:10.923814+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63164, "time": "2026-09-09T04:41:13.393131+00:00"}
+{"type": "tool/call", "name": "fetch_url", "args": {"url": "https://www.sevenrooms.com/api-yoa/availability/widget/range?venue=semolasydney&time_slot=21%3A00&party_size=2&halo_size_interval=30&start_date=2026-09-26&num_days=1&channel=SEVENROOMS_WIDGET"}, "time": "2026-09-09T04:41:13.393217+00:00"}
+{"type": "tool/result", "name": "fetch_url", "bytes": 63437, "time": "2026-09-09T04:41:15.266729+00:00"}
+{"type": "turn/start", "turn": 22, "time": "2026-09-09T04:41:15.266812+00:00"}
+{"type": "assistant/message", "finish_reason": "tool_calls", "usage": {"prompt_tokens": 270164, "completion_tokens": 11953, "total_tokens": 282117, "cost": 0.07797556, "is_byok": false, "prompt_tokens_details": {"cached_tokens": 212992, "cache_write_tokens": 0, "audio_tokens": 0, "video_tokens": 0}, "cost_details": {"upstream_inference_cost": 0.07797556, "upstream_inference_prompt_cost": 0.04211656, "upstream_inference_completions_cost": 0.035859}, "completion_tokens_details": {"reasoning_tokens": 3166, "image_tokens": 0, "audio_tokens": 0}}, "ttft_s": 90.55937004089355, "content_chars": 985, "tool_calls": ["write_file"], "time": "2026-09-09T04:44:29.728245+00:00"}
+{"type": "turn/end", "turn": 22, "spend_usd": 0.640568, "time": "2026-09-09T04:44:29.730562+00:00"}
+{"type": "tool/call", "name": "write_file", "args": {"content": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Dinner, Sat 26 Sep 2026, 7pm \u2014 two, from Ultimo</title>\n<style>\n  :root{\n    --bg:#101114; --panel:#17181c; --panel2:#1d1e23;\n    --ink:#eceae4; --muted:#9a978d;", "filename": "recommendation.html"}, "time": "2026-09-09T04:44:29.732853+00:00"}
+{"type": "tool/result", "name": "write_file", "bytes": 50, "time": "2026-09-09T04:44:29.746457+00:00"}
+{"type": "turn/start", "turn": 23, "time": "2026-09-09T04:44:29.746542+00:00"}

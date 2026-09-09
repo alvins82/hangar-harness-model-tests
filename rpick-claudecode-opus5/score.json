@@ -1,0 +1,18 @@
+{
+  "model": "Opus 5 (1M context)",
+  "harness": "Claude Code",
+  "run_date": "2026-09-09",
+  "target_date": "2026-09-26",
+  "hard_filters": 16,
+  "taste_fit": 15,
+  "verification": 30,
+  "honesty": 11,
+  "output": 4,
+  "total": 81,
+  "fabrications": [],
+  "booking_checks": "3/3",
+  "notes": "NOT A BLIND RUN. This model wrote PROMPT.md and RUBRIC.md and then scored its own work, so it belongs in the tables only as a reference point, never as a winner. It also ran outside the four harnesses and outside the OpenRouter runner, so no transcript exists in a format extract_metrics.py reads and there are no token, cost, duration or TTFT figures for it.\n\nRescored onto the revised rubric so it sits on the same scale as the OpenRouter rows. It scores well on verification (35/40) for a real reason: it is the only run besides Qwen to query a live booking system for every venue it recommended, and the only run of any kind that confirmed an actual bookable 19:00 table -- three of them.\n\nThe contested call is taste_fit. The line items give 15/15, but the starred pick, Hamsi Taverna, sits on the water at the new Sydney Fish Market with roughly 200 seats and harbour views, which is arguably the 'view is the point' hard avoid -- and this same run rejected Watermans at Barangaroo for precisely that reason. Applying the halving rule gives 8 and a total of 79; not applying it gives 15 and 86. A human should settle it.\n\nLost points elsewhere for review counts, which it could not obtain from any surface -- while Qwen got 648 and SOL got 24 and 112, so the gap was capability, not an impossible ask.",
+  "rubric_version": "revised (20/15/40/15/5/5)",
+  "named_venue": 5,
+  "verification_basis": "25 of 33 applicable points, scaled to 40"
+}
