@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050a11">
+  <title>Hangar 07 — Orbital Flight Deck</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #d9f2ff;
+      --muted: #7393a8;
+      --cyan: #55e6ff;
+      --line: rgba(123, 203, 230, .18);
+      --panel: rgba(5, 15, 24, .72);
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050a11; }
+    body { color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .025em; }
+    #scene { position: fixed; inset: 0; }
+    #scene canvas { width: 100%; height: 100%; display: block; }
+    .grain, .vignette { position: fixed; inset: 0; pointer-events: none; }
+    .grain { opacity: .12; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E"); }
+    .vignette { background: radial-gradient(ellipse at 50% 46%, transparent 34%, rgba(1, 5, 10, .28) 78%, rgba(1, 4, 8, .72) 130%); }
+    .hud { position: fixed; inset: 0; pointer-events: none; padding: 26px 32px; display: flex; flex-direction: column; justify-content: space-between; }
+    .topbar, .bottomrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 32px; height: 32px; border: 1px solid rgba(85,230,255,.65); transform: rotate(45deg); display: grid; place-items: center; box-shadow: 0 0 18px rgba(55,208,255,.16), inset 0 0 12px rgba(55,208,255,.12); }
+    .brand-mark::before { content: ""; width: 12px; height: 12px; border: 1px solid var(--cyan); }
+    .eyebrow { color: var(--cyan); font: 600 9px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .22em; text-transform: uppercase; }
+    .brand-title { margin-top: 4px; font-size: 12px; font-weight: 650; letter-spacing: .18em; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 24px; text-align: right; }
+    .readout { color: var(--muted); font: 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .readout strong { display: block; color: var(--ink); font-size: 11px; font-weight: 500; }
+    .live { display: inline-flex; align-items: center; gap: 8px; color: #b9ffc8; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .live i { display: block; width: 6px; height: 6px; border-radius: 50%; background: #6dff9b; box-shadow: 0 0 10px #6dff9b; animation: blink 1.8s infinite; }
+    .corner { position: absolute; width: 24px; height: 24px; opacity: .6; }
+    .corner.tl { left: 18px; top: 18px; border-left: 1px solid #4b8097; border-top: 1px solid #4b8097; }
+    .corner.tr { right: 18px; top: 18px; border-right: 1px solid #4b8097; border-top: 1px solid #4b8097; }
+    .corner.bl { left: 18px; bottom: 18px; border-left: 1px solid #4b8097; border-bottom: 1px solid #4b8097; }
+    .corner.br { right: 18px; bottom: 18px; border-right: 1px solid #4b8097; border-bottom: 1px solid #4b8097; }
+    .side-readout { position: absolute; right: 32px; top: 48%; transform: translateY(-50%); padding-right: 14px; border-right: 1px solid var(--line); text-align: right; }
+    .side-readout .big { font: 300 25px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: -.04em; }
+    .side-readout .big small { color: var(--cyan); font-size: 11px; }
+    .side-readout .bars { display: flex; justify-content: flex-end; gap: 3px; height: 19px; align-items: end; margin: 10px 0 7px; }
+    .side-readout .bars i { display: block; width: 3px; background: var(--cyan); opacity: .72; }
+    .side-readout .bars i:nth-child(1) { height: 6px; opacity: .28; } .side-readout .bars i:nth-child(2) { height: 10px; opacity: .45; } .side-readout .bars i:nth-child(3) { height: 13px; opacity: .6; } .side-readout .bars i:nth-child(4) { height: 17px; } .side-readout .bars i:nth-child(5) { height: 11px; opacity: .55; } .side-readout .bars i:nth-child(6) { height: 15px; opacity: .8; } .side-readout .bars i:nth-child(7) { height: 8px; opacity: .4; }
+    .side-readout .caption { color: var(--muted); font: 8px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; }
+    .bottomrow { align-items: flex-end; }
+    .bay-info { max-width: 300px; }
+    .bay-title { margin: 5px 0 7px; font-size: clamp(20px, 3vw, 32px); line-height: 1; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
+    .bay-copy { color: #8ea8b9; font-size: 10px; line-height: 1.7; letter-spacing: .07em; text-transform: uppercase; }
+    .controls { display: flex; align-items: center; gap: 8px; pointer-events: auto; }
+    .control-btn { border: 1px solid rgba(120,190,216,.3); color: #c6e4f1; background: rgba(5,15,24,.68); min-height: 38px; padding: 0 13px; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: .2s ease; backdrop-filter: blur(10px); }
+    .control-btn:hover { border-color: var(--cyan); color: #fff; background: rgba(26,75,93,.55); box-shadow: 0 0 18px rgba(49,207,244,.16); }
+    .control-btn.active { border-color: rgba(85,230,255,.75); color: #a9f5ff; box-shadow: inset 0 0 18px rgba(45,210,255,.1), 0 0 16px rgba(45,210,255,.08); }
+    .control-btn .key { margin-right: 8px; color: var(--cyan); opacity: .75; }
+    .control-note { margin-top: 9px; color: rgba(147,182,199,.64); font: 8px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .11em; text-align: right; text-transform: uppercase; }
+    .center-marker { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; transform: translate(-50%,-50%); opacity: .45; }
+    .center-marker::before, .center-marker::after { content: ""; position: absolute; background: rgba(125,211,235,.58); }
+    .center-marker::before { width: 1px; height: 24px; left: 12px; }
+    .center-marker::after { height: 1px; width: 24px; top: 12px; }
+    .scanline { position: absolute; left: 0; right: 0; height: 1px; top: 33%; opacity: .14; background: linear-gradient(90deg, transparent, #62cce7 30%, #62cce7 70%, transparent); animation: scan 8s linear infinite; }
+    .status-toast { position: absolute; left: 50%; top: 76px; transform: translate(-50%,-8px); opacity: 0; transition: .28s ease; border: 1px solid rgba(85,230,255,.38); background: rgba(4,15,24,.86); padding: 9px 13px; color: #c8f7ff; font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+    .status-toast.show { opacity: 1; transform: translate(-50%,0); }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .32; } }
+    @keyframes scan { from { transform: translateY(-18vh); } to { transform: translateY(55vh); } }
+    @media (max-width: 700px) {
+      .hud { padding: 20px; }
+      .header-right .readout { display: none; }
+      .side-readout { display: none; }
+      .bottomrow { align-items: flex-end; flex-direction: column; }
+      .bay-info { align-self: flex-start; }
+      .controls { width: 100%; justify-content: flex-end; }
+      .control-btn { min-height: 36px; padding: 0 9px; font-size: 9px; }
+      .control-note { display: none; }
+    }
+    @media (max-width: 430px) {
+      .hud { padding: 18px; }
+      .brand-title { font-size: 10px; }
+      .brand-mark { width: 27px; height: 27px; }
+      .controls { gap: 5px; }
+      .control-btn { padding: 0 7px; letter-spacing: .04em; }
+      .control-btn .key { margin-right: 4px; }
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="scene" aria-label="Interactive Three.js orbital hangar"></div>
+  <div class="grain"></div><div class="vignette"></div>
+  <div class="hud">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="scanline"></div><div class="center-marker"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div><div class="eyebrow">Asterion Orbital Authority</div><div class="brand-title">Flight Deck / Hangar 07</div></div>
+      </div>
+      <div class="header-right">
+        <div class="readout">Sector 04<strong>Kepler Array · 0.8 AU</strong></div>
+        <div class="readout">Local ship time<strong id="shipTime">08:42:16</strong></div>
+        <div class="live"><i></i> Dock systems nominal</div>
+      </div>
+    </header>
+    <div class="side-readout" aria-hidden="true">
+      <div class="eyebrow">Atmospheric pressure</div>
+      <div class="big">1.02 <small>ATM</small></div>
+      <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="caption">O₂ 21.4% &nbsp; / &nbsp; Temp 18°C</div>
+    </div>
+    <div class="status-toast" id="toast" role="status"></div>
+    <footer class="bottomrow">
+      <div class="bay-info">
+        <div class="eyebrow">Active bay / 07-Alpha</div>
+        <h1 class="bay-title">Vanguard<br>Hangar</h1>
+        <div class="bay-copy">Autonomous flight systems standing by.<br>Clearance level: <span style="color:#aaf0ff">Orion</span> · Cycle 224.09</div>
+      </div>
+      <div>
+        <div class="controls">
+          <button class="control-btn" id="formationBtn" type="button" aria-pressed="false"><span class="key">[ F ]</span>Formation: Docked</button>
+          <button class="control-btn active" id="cameraBtn" type="button" aria-pressed="true"><span class="key">[ C ]</span>Cinematic: On</button>
+        </div>
+        <div class="control-note">Drag to orbit · Scroll to zoom · F / C shortcuts</div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const mount = document.querySelector('#scene');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.22;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    mount.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050a11);
+    scene.fog = new THREE.FogExp2(0x07111a, 0.0125);
+    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 220);
+    camera.position.set(37, 18, 36);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 5, -3);
+    controls.enableDamping = true;
+    controls.dampingFactor = .045;
+    controls.minDistance = 18;
+    controls.maxDistance = 78;
+    controls.maxPolarAngle = Math.PI * .48;
+    controls.enabled = false;
+
+    const hemi = new THREE.HemisphereLight(0x9ad6f4, 0x141b26, 1.55);
+    scene.add(hemi);
+    const keyLight = new THREE.DirectionalLight(0xc3eaff, 2.1);
+    keyLight.position.set(-18, 33, 24);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.left = -42; keyLight.shadow.camera.right = 42;
+    keyLight.shadow.camera.top = 42; keyLight.shadow.camera.bottom = -42;
+    keyLight.shadow.bias = -.00035;
+    scene.add(keyLight);
+    const coolFill = new THREE.PointLight(0x2682b5, 145, 76, 1.8);
+    coolFill.position.set(0, 13, -27); scene.add(coolFill);
+    const warmFill = new THREE.PointLight(0xffa34d, 66, 44, 1.6);
+    warmFill.position.set(0, 9, 21); scene.add(warmFill);
+
+    const mats = {
+      floor: new THREE.MeshStandardMaterial({ color: 0x101820, roughness: .82, metalness: .38 }),
+      panelA: new THREE.MeshStandardMaterial({ color: 0x111d26, roughness: .72, metalness: .45 }),
+      panelB: new THREE.MeshStandardMaterial({ color: 0x0c151d, roughness: .78, metalness: .4 }),
+      wall: new THREE.MeshStandardMaterial({ color: 0x101a23, roughness: .67, metalness: .56 }),
+      structure: new THREE.MeshStandardMaterial({ color: 0x263743, roughness: .48, metalness: .7 }),
+      dark: new THREE.MeshStandardMaterial({ color: 0x080e14, roughness: .48, metalness: .62 }),
+      black: new THREE.MeshStandardMaterial({ color: 0x05090d, roughness: .42, metalness: .56 }),
+      drone: new THREE.MeshStandardMaterial({ color: 0x192d3a, roughness: .32, metalness: .78 }),
+      droneLight: new THREE.MeshStandardMaterial({ color: 0x91f5ff, emissive: 0x35d9ff, emissiveIntensity: 2.8, roughness: .23, metalness: .3 }),
+      cyan: new THREE.MeshStandardMaterial({ color: 0x6ceeff, emissive: 0x1ba8d0, emissiveIntensity: 2.35, roughness: .27, metalness: .2 }),
+      amber: new THREE.MeshStandardMaterial({ color: 0xffc66a, emissive: 0xff5b18, emissiveIntensity: 2.1, roughness: .35, metalness: .15 }),
+      red: new THREE.MeshStandardMaterial({ color: 0xff7772, emissive: 0xf31a2d, emissiveIntensity: 2.8, roughness: .3 }),
+      strip: new THREE.MeshStandardMaterial({ color: 0x79f4ff, emissive: 0x1ad6ff, emissiveIntensity: 3.1, roughness: .26, metalness: .2 }),
+      yellow: new THREE.MeshStandardMaterial({ color: 0xffd16b, emissive: 0xff8b19, emissiveIntensity: 2.35, roughness: .3 }),
+    };
+
+    function box(parent, w, h, d, material, x, y, z, cast = false, receive = false) {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+      mesh.position.set(x, y, z); mesh.castShadow = cast; mesh.receiveShadow = receive;
+      parent.add(mesh); return mesh;
+    }
+    function cylinderBetween(parent, a, b, radius, material, sides = 8) {
+      const start = new THREE.Vector3(...a), end = new THREE.Vector3(...b);
+      const dir = end.clone().sub(start);
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius * .78, radius, dir.length(), sides), material);
+      mesh.position.copy(start).add(end).multiplyScalar(.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+      mesh.castShadow = true; parent.add(mesh); return mesh;
+    }
+
+    // Deck plating, service rails, and long luminous runway lanes.
+    const deck = new THREE.Mesh(new THREE.PlaneGeometry(62, 118), mats.floor);
+    deck.rotation.x = -Math.PI / 2; deck.position.set(0, -.13, -2); deck.receiveShadow = true; scene.add(deck);
+    for (let ix = -5; ix <= 5; ix++) {
+      for (let iz = -7; iz <= 7; iz++) {
+        const x = ix * 5.15, z = iz * 7.5 - 2;
+        const tile = box(scene, 5.03, .08, 7.36, (ix + iz) % 2 ? mats.panelA : mats.panelB, x, -.055, z, false, true);
+        tile.position.y = -.055;
+      }
+    }
+    // Long inset runway bed and edge rails.
+    box(scene, 16.5, .12, 88, mats.dark, 0, -.005, -4, false, true);
+    box(scene, .18, .09, 84, mats.structure, -8.1, .075, -5, false, false);
+    box(scene, .18, .09, 84, mats.structure, 8.1, .075, -5, false, false);
+    for (let i = 0; i < 23; i++) {
+      const z = 34 - i * 3.55;
+      for (const side of [-1, 1]) {
+        const strip = box(scene, .19, .075, 1.55, mats.strip, side * 7.65, .11, z, false, false);
+        strip.material = i % 7 === 0 ? mats.yellow : mats.strip;
+        const glow = new THREE.PointLight(i % 7 === 0 ? 0xff7838 : 0x16cfff, i % 7 === 0 ? 1.9 : 1.1, 4.1, 2);
+        glow.position.set(side * 7.65, .38, z); scene.add(glow);
+      }
+      box(scene, .16, .035, 1.55, mats.cyan, 0, .085, z - 1.55, false, false);
+    }
+    // Amber edge ticks and service bay numerals.
+    for (let z = -43; z <= 34; z += 6) {
+      for (const side of [-1, 1]) box(scene, .85, .035, .12, mats.yellow, side * 11.2, .075, z, false, false);
+    }
+
+    // Hangar shell with repeated ribs and overhead trusses.
+    box(scene, 62, 24, 1.2, mats.wall, 0, 11.8, -48, false, true);
+    box(scene, 1.3, 24, 112, mats.wall, -30.5, 11.8, -2, false, true);
+    box(scene, 1.3, 24, 112, mats.wall, 30.5, 11.8, -2, false, true);
+    for (let z = -46; z <= 42; z += 7.3) {
+      for (const side of [-1, 1]) {
+        box(scene, .42, 22.5, .65, mats.structure, side * 28.7, 11.2, z, true, false);
+        box(scene, 2.8, .2, .7, mats.structure, side * 27.45, 18.8, z, false, false);
+        box(scene, .17, 18.2, .18, mats.strip, side * 28.3, 10.2, z, false, false);
+      }
+      box(scene, 57, .42, .7, mats.structure, 0, 21.5, z, true, false);
+      box(scene, 2.6, .14, .42, mats.strip, 0, 21.22, z, false, false);
+    }
+    // Ceiling spars create a strong sense of scale without closing the roof in.
+    for (let z = -42; z <= 34; z += 10.5) {
+      cylinderBetween(scene, [-27.2, 19.3, z], [0, 23.4, z], .21, mats.structure, 6);
+      cylinderBetween(scene, [0, 23.4, z], [27.2, 19.3, z], .21, mats.structure, 6);
+      box(scene, 52, .12, .12, mats.dark, 0, 19.8, z + .55, false, false);
+    }
+    // Huge rear pressure door, framed like an aircraft launch aperture.
+    box(scene, 32, 18, .65, mats.black, 0, 10, -47.18, false, false);
+    box(scene, 33, .55, 1, mats.structure, 0, 19.4, -46.48, true, false);
+    box(scene, .55, 18, 1, mats.structure, -16.5, 10, -46.48, true, false);
+    box(scene, .55, 18, 1, mats.structure, 16.5, 10, -46.48, true, false);
+    box(scene, 24, .12, .26, mats.strip, 0, 1.15, -46.7, false, false);
+    box(scene, .12, 15, .2, mats.cyan, -13.2, 9.3, -46.65, false, false);
+    box(scene, .12, 15, .2, mats.cyan, 13.2, 9.3, -46.65, false, false);
+
+    // Holographic bay sign texture.
+    function labelTexture(lines, options = {}) {
+      const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = options.bg || 'rgba(3,14,22,.78)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = options.line || 'rgba(91,222,255,.7)'; ctx.lineWidth = 3; ctx.strokeRect(8, 8, 1008, 240);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = options.color || '#bff5ff';
+      ctx.font = '600 78px ui-monospace, monospace'; ctx.fillText(lines[0], 512, 105);
+      ctx.fillStyle = options.sub || '#5dc6df'; ctx.font = '28px ui-monospace, monospace'; ctx.fillText(lines[1] || 'ORBITAL FLIGHT DECK', 512, 190);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+    }
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(15.6, 3.9), new THREE.MeshBasicMaterial({ map: labelTexture(['HANGAR 07', 'VANGUARD FLIGHT DECK']), transparent: true, side: THREE.DoubleSide, toneMapped: false }));
+    sign.position.set(0, 16.8, -46.52); scene.add(sign);
+    const floorTag = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 1.9), new THREE.MeshBasicMaterial({ map: labelTexture(['07 / ALPHA', 'AUTHORIZED PERSONNEL']), transparent: true, side: THREE.DoubleSide, toneMapped: false, opacity: .55 }));
+    floorTag.rotation.x = -Math.PI / 2; floorTag.position.set(0, .022, 33); scene.add(floorTag);
+
+    // Warning beacons use both emissive lenses and local light for a readable pulse.
+    const warningBeacons = [];
+    function addBeacon(x, z) {
+      const rig = new THREE.Group(); rig.position.set(x, 0, z); scene.add(rig);
+      box(rig, .32, 1.55, .32, mats.dark, 0, .78, 0, false, false);
+      const lens = new THREE.Mesh(new THREE.SphereGeometry(.26, 16, 12), mats.red.clone()); lens.position.y = 1.68; rig.add(lens);
+      const halo = makeGlow(0xff2a45, .75); halo.position.y = 1.68; halo.scale.set(2.6, 2.6, 1); rig.add(halo);
+      const light = new THREE.PointLight(0xff213b, 3.2, 10, 2); light.position.y = 1.8; rig.add(light);
+      warningBeacons.push({ lens, light, phase: Math.random() * Math.PI * 2 });
+    }
+    function makeGlow(color, opacity = .7) {
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
+      const ctx = canvas.getContext('2d'); const g = ctx.createRadialGradient(64, 64, 2, 64, 64, 62);
+      g.addColorStop(0, `rgba(255,255,255,${opacity})`); g.addColorStop(.13, `rgba(255,255,255,${opacity * .72})`);
+      g.addColorStop(.38, `rgba(255,255,255,${opacity * .18})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
+      const texture = new THREE.CanvasTexture(canvas);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity, toneMapped: false }));
+      return sprite;
+    }
+    for (const z of [-35, -4, 26]) { addBeacon(-12.6, z); addBeacon(12.6, z); }
+
+    // Shallow animated shader sheets evoke suspended bay mist without obscuring the ships.
+    function addFogSheet(z, tint, opacity, phase) {
+      const material = new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, side: THREE.DoubleSide,
+        uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(tint) }, uOpacity: { value: opacity }, uPhase: { value: phase } },
+        vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+        fragmentShader: `
+          uniform float uTime; uniform float uOpacity; uniform float uPhase; uniform vec3 uColor; varying vec2 vUv;
+          float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+          float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y); }
+          void main(){
+            float h = vUv.y;
+            float vertical = smoothstep(0.0,0.16,h) * (1.0-smoothstep(0.7,1.0,h));
+            float horizontal = smoothstep(0.0,0.12,vUv.x) * (1.0-smoothstep(0.82,1.0,vUv.x));
+            float plume = exp(-pow((h-(0.27+0.045*sin(vUv.x*9.0+uTime*0.22+uPhase)))*4.4,2.0));
+            float n = noise(vUv*vec2(8.0,3.2)+vec2(uTime*0.035,uPhase));
+            float wisps = 0.55+0.45*n;
+            float alpha = vertical*horizontal*plume*wisps*uOpacity;
+            gl_FragColor = vec4(uColor, alpha);
+          }`
+      });
+      const sheet = new THREE.Mesh(new THREE.PlaneGeometry(62, 15), material);
+      sheet.position.set(0, 7.3, z); sheet.renderOrder = 2; scene.add(sheet); return material;
+    }
+    const fogMaterials = [
+      addFogSheet(-19, 0x93d6ed, .18, .4),
+      addFogSheet(7, 0x569dbd, .115, 1.9),
+      addFogSheet(-37, 0x62a9ce, .13, 3.7),
+    ];
+
+    // Drone construction. Each unit has a plated hull, four protected rotors and nav lights.
+    const rotorGeometry = new THREE.BoxGeometry(.86, .055, .12);
+    const droneUnits = [];
+    const droneCount = 6;
+    const labels = ['01', '02', '03', '04', '05', '06'];
+    function droneLabelTexture(text) {
+      const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 96;
+      const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,256,96);
+      ctx.fillStyle = 'rgba(4,15,24,.58)'; ctx.fillRect(8,22,240,52);
+      ctx.strokeStyle = 'rgba(85,230,255,.68)'; ctx.lineWidth = 2; ctx.strokeRect(8,22,240,52);
+      ctx.fillStyle = '#a9efff'; ctx.font = '600 25px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`V-${text}  /  AUTONOMOUS`,128,49);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+    }
+    function buildDrone(index) {
+      const group = new THREE.Group(); scene.add(group);
+      const body = new THREE.Group(); group.add(body);
+      const hull = new THREE.Mesh(new THREE.OctahedronGeometry(.83, 1), mats.drone);
+      hull.scale.set(1.38, .48, .94); hull.position.y = .02; hull.castShadow = true; body.add(hull);
+      const canopy = new THREE.Mesh(new THREE.SphereGeometry(.43, 18, 12), new THREE.MeshPhysicalMaterial({ color: 0x163a4b, metalness: .45, roughness: .12, transparent: true, opacity: .92, clearcoat: .8, emissive: 0x063343, emissiveIntensity: 1.1 }));
+      canopy.scale.set(1.02,.42,.84); canopy.position.set(0,.27,-.03); body.add(canopy);
+      box(body, .55, .15, .68, mats.structure, 0, -.27, .05, false, false);
+      // Nose light and rear directional markers.
+      const nose = new THREE.Mesh(new THREE.BoxGeometry(.22,.1,.28), mats.droneLight); nose.position.set(0,.08,-1.08); body.add(nose);
+      for (const side of [-1,1]) {
+        const nav = new THREE.Mesh(new THREE.SphereGeometry(.11, 12, 8), side < 0 ? mats.red : mats.cyan);
+        nav.position.set(side*1.17,.03,.38); body.add(nav);
+        const tip = new THREE.Mesh(new THREE.BoxGeometry(.14,.09,.27), mats.amber); tip.position.set(side*.68,.08,.92); body.add(tip);
+      }
+      const positions = [[-1.02,.02,-.82],[1.02,.02,-.82],[-1.02,.02,.82],[1.02,.02,.82]];
+      const rotors = [];
+      for (const [x,y,z] of positions) {
+        cylinderBetween(body, [x*.38,.06,z*.38], [x,.04,z], .075, mats.structure, 8);
+        const rotor = new THREE.Group(); rotor.position.set(x,.13,z); body.add(rotor); rotors.push(rotor);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(.48,.055,7,22), mats.dark); ring.rotation.x = Math.PI/2; rotor.add(ring);
+        const motor = new THREE.Mesh(new THREE.CylinderGeometry(.18,.21,.22,12), mats.structure); motor.position.y=.03; rotor.add(motor);
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.1,12), mats.cyan); hub.position.y=.18; rotor.add(hub);
+        const blades = new THREE.Group(); blades.position.y=.23; rotor.add(blades);
+        const bladeA = new THREE.Mesh(rotorGeometry, mats.black); bladeA.castShadow = true; blades.add(bladeA);
+        const bladeB = new THREE.Mesh(rotorGeometry, mats.black); bladeB.rotation.y = Math.PI/2; bladeB.castShadow = true; blades.add(bladeB);
+        rotor.userData.blades = blades;
+      }
+      const under = new THREE.Mesh(new THREE.CylinderGeometry(.23,.35,.31,12), mats.dark); under.position.y=-.39; body.add(under);
+      const thruster = new THREE.Mesh(new THREE.CylinderGeometry(.16,.28,.12,16), mats.droneLight); thruster.position.y=-.6; body.add(thruster);
+      const halo = makeGlow(0x36dcff, .58); halo.position.set(0,-.85,0); halo.scale.set(3.8,3.8,1); halo.material.rotation = Math.PI/2; body.add(halo);
+      const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: droneLabelTexture(labels[index]), transparent: true, depthWrite: false, opacity: .72, toneMapped: false }));
+      label.position.set(0,1.55,0); label.scale.set(2.45,.92,1); group.add(label);
+      const underLight = new THREE.PointLight(0x27cfff, 2.2, 7, 2); underLight.position.set(0,-.5,0); group.add(underLight);
+      return { group, body, rotors, underLight, phase: index * 1.37, index };
+    }
+    for (let i=0;i<droneCount;i++) droneUnits.push(buildDrone(i));
+    const dockedPositions = [
+      [-12.5,3.6,-20],[-12.5,3.3,-2],[-12.5,3.8,16],
+      [12.5,3.4,-20],[12.5,3.7,-2],[12.5,3.3,16],
+    ];
+    const formationPositions = [
+      [-7.5,4.7,-12],[-11.8,3.5,-1],[-7.2,6.2,9],
+      [7.5,4.7,-12],[11.8,3.5,-1],[7.2,6.2,9],
+    ];
+    let inFormation = false;
+    droneUnits.forEach((unit, i) => {
+      unit.group.position.set(...dockedPositions[i]);
+      unit.group.userData.target = new THREE.Vector3(...dockedPositions[i]);
+      unit.group.rotation.y = i < 3 ? -.05 : Math.PI + .05;
+    });
+
+    // Camera path is a slow, closed dolly/orbit through the hangar.
+    const cameraPath = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(38,17,37), new THREE.Vector3(35,12,4), new THREE.Vector3(26,10,-24),
+      new THREE.Vector3(3,20,-40), new THREE.Vector3(-25,13,-25), new THREE.Vector3(-37,16,7),
+      new THREE.Vector3(-21,21,34),
+    ], true, 'catmullrom', .35);
+    const lookAtPoint = new THREE.Vector3(0,5,-4);
+    let cinematic = true;
+    const startTime = performance.now();
+    const toast = document.querySelector('#toast');
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message; toast.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+    const formationBtn = document.querySelector('#formationBtn');
+    const cameraBtn = document.querySelector('#cameraBtn');
+    function setFormation(next) {
+      inFormation = next;
+      droneUnits.forEach((unit, i) => {
+        unit.group.userData.target.set(...(inFormation ? formationPositions[i] : dockedPositions[i]));
+        unit.group.rotation.z = inFormation ? (i % 3 - 1) * .035 : 0;
+      });
+      formationBtn.classList.toggle('active', inFormation);
+      formationBtn.setAttribute('aria-pressed', String(inFormation));
+      formationBtn.innerHTML = `<span class="key">[ F ]</span>Formation: ${inFormation ? 'Flight' : 'Docked'}`;
+      showToast(inFormation ? 'Autonomous units assume flight formation' : 'Autonomous units return to dock stations');
+    }
+    function setCinematic(next) {
+      cinematic = next; controls.enabled = !cinematic;
+      cameraBtn.classList.toggle('active', cinematic);
+      cameraBtn.setAttribute('aria-pressed', String(cinematic));
+      cameraBtn.innerHTML = `<span class="key">[ C ]</span>Cinematic: ${cinematic ? 'On' : 'Off'}`;
+      if (!cinematic) { controls.target.copy(lookAtPoint); controls.update(); }
+      showToast(cinematic ? 'Cinematic camera path engaged' : 'Manual camera control enabled');
+    }
+    formationBtn.addEventListener('click', () => setFormation(!inFormation));
+    cameraBtn.addEventListener('click', () => setCinematic(!cinematic));
+    window.addEventListener('keydown', event => {
+      if (event.repeat || event.target instanceof HTMLInputElement) return;
+      if (event.key.toLowerCase() === 'f') setFormation(!inFormation);
+      if (event.key.toLowerCase() === 'c') setCinematic(!cinematic);
+    });
+
+    const shipTime = document.querySelector('#shipTime');
+    let lastClockUpdate = 0;
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+      fogMaterials.forEach(m => m.uniforms.uTime.value = elapsed);
+      warningBeacons.forEach(({ lens, light, phase }) => {
+        const pulse = .5 + .5 * Math.sin(elapsed * 3.1 + phase);
+        lens.material.emissiveIntensity = 1.15 + pulse * 3.4;
+        light.intensity = .45 + pulse * 4.4;
+      });
+      droneUnits.forEach(unit => {
+        const target = unit.group.userData.target;
+        const t = elapsed * 1.5 + unit.phase;
+        unit.group.position.x = THREE.MathUtils.damp(unit.group.position.x, target.x, 1.25, 1/60);
+        unit.group.position.z = THREE.MathUtils.damp(unit.group.position.z, target.z, 1.25, 1/60);
+        unit.group.position.y = THREE.MathUtils.damp(unit.group.position.y, target.y + Math.sin(t) * .24, 1.55, 1/60);
+        unit.body.rotation.z = Math.sin(t * .7) * .025;
+        unit.body.rotation.x = Math.cos(t * .6) * .018;
+        unit.rotors.forEach((rotor, r) => { rotor.userData.blades.rotation.y += (r % 2 ? -1 : 1) * .31; });
+        unit.underLight.intensity = 1.6 + (Math.sin(t*1.5)+1)*.35;
+      });
+      if (cinematic) {
+        const u = ((elapsed * .012) % 1 + 1) % 1;
+        const pathPosition = cameraPath.getPointAt(u);
+        camera.position.lerp(pathPosition, .035);
+        const gaze = lookAtPoint.clone();
+        gaze.x += Math.sin(elapsed * .12) * 1.8;
+        gaze.y += Math.sin(elapsed * .08) * .5;
+        camera.lookAt(gaze);
+      } else controls.update();
+      if (elapsed - lastClockUpdate > 1) {
+        const seconds = Math.floor((performance.now() - startTime) / 1000);
+        const h = 8 + Math.floor((42 * 60 + 16 + seconds) / 3600);
+        const m = Math.floor((42 * 60 + 16 + seconds) / 60) % 60;
+        const s = (16 + seconds) % 60;
+        shipTime.textContent = `${String(h % 24).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        lastClockUpdate = elapsed;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
