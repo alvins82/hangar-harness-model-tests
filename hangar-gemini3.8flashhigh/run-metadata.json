@@ -1,0 +1,47 @@
+{
+  "model": "Gemini 3.8 Flash High",
+  "model_id": "gemini-3.8-flash",
+  "thinking_level": "high",
+  "harness": "Antigravity",
+  "started_at": "2026-10-14T10:22:21.990729+13:00",
+  "completed_at": "2026-10-14T10:58:37.800427+13:00",
+  "duration_seconds": 2175.809698,
+  "ttft_estimate_seconds": 1,
+  "ttft_basis": "First model-response timestamp minus first user-input timestamp; source timestamps have one-second resolution.",
+  "tokens": {
+    "input_total": 9298004,
+    "input_uncached": 664196,
+    "cache_read": 8633808,
+    "output_total": 107883,
+    "reasoning_subset": 79512,
+    "total": 9405887,
+    "cached_input_percent": 92.85657437875913
+  },
+  "tools": {
+    "calls": 71,
+    "errors": 0,
+    "opened_in_browser": true,
+    "checked_screenshots": true,
+    "screenshots_reviewed": 14
+  },
+  "cost_estimate_usd": {
+    "input": 0.498147,
+    "cache_read": 0.6475356,
+    "output": 0.40456125,
+    "total": 1.55024385
+  },
+  "pricing_basis": {
+    "provider": "Google Gemini Developer API",
+    "tier": "Standard paid tier",
+    "rates_usd_per_million_tokens": {
+      "input": 0.75,
+      "cache_read": 0.075,
+      "output": 3.75
+    },
+    "rates_retrieved_on": "2026-10-14",
+    "introductory_rates_valid_through": "2026-12-31",
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "note": "API-equivalent estimate; actual Antigravity subscription charges are unavailable."
+  },
+  "trace_note": "Reasoning counts recovered from local Antigravity response metadata. Transcript export omits internal thinking text and normalizes local paths."
+}
