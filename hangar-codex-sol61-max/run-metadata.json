@@ -1,0 +1,66 @@
+{
+  "benchmark": "Same single-page Three.js sci-fi hangar task as the other repository runs.",
+  "model": "GPT-6.1 Sol Max",
+  "modelId": "gpt-6.1-sol",
+  "reasoningEffort": "max",
+  "harness": "Codex",
+  "sourceSessionId": "01a13774-3901-7dc3-ae07-fd566039be3c",
+  "sessionStartedAtUtc": "2026-10-13T22:48:46.083Z",
+  "promptAtUtc": "2026-10-13T22:48:52.659Z",
+  "firstVisibleResponseAtUtc": "2026-10-13T22:48:55.251Z",
+  "completedAtUtc": "2026-10-13T23:04:40.094Z",
+  "durationSeconds": 947.435,
+  "timeToFirstTokenSeconds": 2.592,
+  "timingDefinition": {
+    "duration": "Benchmark prompt timestamp to final assistant response.",
+    "timeToFirstToken": "Benchmark prompt timestamp to first visible assistant response."
+  },
+  "usage": {
+    "inputTokens": 2877286,
+    "cachedInputTokens": 2781952,
+    "uncachedInputTokens": 95334,
+    "outputTokens": 40008,
+    "reasoningTokens": 11524,
+    "reasoningTokensAreSubsetOfOutput": true,
+    "totalTokens": 2917294,
+    "cachedInputPercent": 96.686669,
+    "cacheWriteInputTokens": 0,
+    "maxSingleRequestInputTokens": 112091,
+    "inputTokensIncludeCachedInput": true
+  },
+  "toolTelemetry": {
+    "toolCalls": 33,
+    "failedToolEvents": 1,
+    "callCountsByWrapper": {
+      "Codex exec": 17,
+      "Computer Use": 16
+    },
+    "errorDetails": [
+      "One direct file URL browser navigation was rejected by browser security policy; verification continued through the local HTTP preview."
+    ]
+  },
+  "checks": {
+    "openedInBrowser": true,
+    "checkedScreenshot": true
+  },
+  "artifacts": {
+    "html": "index.html",
+    "transcript": "transcript.jsonl",
+    "screenshot": "preview.jpg"
+  },
+  "costEstimate": {
+    "basis": "OpenAI API Standard short-context token rates checked 2026-10-14; API-equivalent estimate only, not actual Codex subscription charges.",
+    "currency": "USD",
+    "ratesPerMillionTokens": {
+      "uncachedInput": 2.0,
+      "cachedInput": 0.1,
+      "output": 10.0
+    },
+    "inputCost": 0.190668,
+    "cacheReadCost": 0.2781952,
+    "outputCost": 0.40008,
+    "totalCost": 0.8689432,
+    "pricingSource": "https://developers.openai.com/api/docs/pricing",
+    "reasoningTokenPricingSource": "https://developers.openai.com/api/docs/guides/reasoning"
+  }
+}
